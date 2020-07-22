@@ -44,7 +44,7 @@ class Cluster(resource.Resource):
         CLUSTER_TEMPLATE_ID_ATTR, KEYPAIR_ATTR, CREATE_TIMEOUT_ATTR
     ) = (
         'api_address', 'stack_id', 'coe_version',
-        'master_addresses', 'status', 'master_count',
+        'main_addresses', 'status', 'main_count',
         'node_addresses', 'status_reason', 'node_count',
         'name', 'container_version', 'discovery_url',
         'cluster_template_id', 'keypair', 'create_timeout'
@@ -65,7 +65,7 @@ class Cluster(resource.Resource):
             type=attributes.Schema.STRING
         ),
         MASTER_ADDRESSES_ATTR: attributes.Schema(
-            _('List of floating IP of all master nodes.'),
+            _('List of floating IP of all main nodes.'),
             type=attributes.Schema.LIST
         ),
         STATUS_ATTR: attributes.Schema(
@@ -73,7 +73,7 @@ class Cluster(resource.Resource):
             type=attributes.Schema.STRING
         ),
         MASTER_COUNT_ATTR: attributes.Schema(
-            _('The number of servers that will serve as master for the '
+            _('The number of servers that will serve as main for the '
               'cluster.'),
             type=attributes.Schema.INTEGER
         ),
@@ -119,7 +119,7 @@ class Cluster(resource.Resource):
         NAME, CLUSTER_TEMPLATE, KEYPAIR, NODE_COUNT, MASTER_COUNT,
         DISCOVERY_URL, CREATE_TIMEOUT
     ) = (
-        'name', 'cluster_template', 'keypair', 'node_count', 'master_count',
+        'name', 'cluster_template', 'keypair', 'node_count', 'main_count',
         'discovery_url', 'create_timeout'
     )
 
@@ -153,7 +153,7 @@ class Cluster(resource.Resource):
         ),
         MASTER_COUNT: properties.Schema(
             properties.Schema.INTEGER,
-            _('The number of master nodes for this cluster.'),
+            _('The number of main nodes for this cluster.'),
             constraints=[constraints.Range(min=1)],
             update_allowed=True,
             default=1

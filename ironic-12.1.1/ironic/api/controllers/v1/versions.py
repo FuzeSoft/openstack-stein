@@ -157,7 +157,7 @@ MINOR_56_BUILD_CONFIGDRIVE = 56
 # - MINOR_MAX_VERSION
 # - doc/source/contributor/webapi-version-history.rst with a detailed
 #   explanation of what changed in the new version
-# - common/release_mappings.py, RELEASE_MAPPING['master']['api']
+# - common/release_mappings.py, RELEASE_MAPPING['main']['api']
 
 MINOR_MAX_VERSION = MINOR_56_BUILD_CONFIGDRIVE
 

@@ -101,7 +101,7 @@ class DbFederationTestCase(base.DbTestCase):
             uuid=uuidutils.generate_uuid(),
             name='fed1',
             project_id='proj1',
-            hostcluster_id='master1',
+            hostcluster_id='main1',
             member_ids=['member1', 'member2'],
             properties={'dns-zone': 'fed1.com.'})
 
@@ -110,7 +110,7 @@ class DbFederationTestCase(base.DbTestCase):
             uuid=uuidutils.generate_uuid(),
             name='fed',
             project_id='proj2',
-            hostcluster_id='master2',
+            hostcluster_id='main2',
             member_ids=['member3', 'member4'],
             properties={"dns-zone": "fed2.com."})
 
@@ -138,11 +138,11 @@ class DbFederationTestCase(base.DbTestCase):
 
         # Filter by hostcluster_id
         res = self.dbapi.get_federation_list(ctx, filters={
-            'hostcluster_id': 'master1'})
+            'hostcluster_id': 'main1'})
         self.assertEqual([fed1.id], [r.id for r in res])
 
         res = self.dbapi.get_federation_list(ctx, filters={
-            'hostcluster_id': 'master2'})
+            'hostcluster_id': 'main2'})
         self.assertEqual([fed2.id], [r.id for r in res])
 
         res = self.dbapi.get_federation_list(ctx,

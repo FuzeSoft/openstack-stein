@@ -133,9 +133,9 @@ class UpdateToLatestVersionsTestCase(base.DbTestCase):
 
         obj_versions = release_mappings.get_object_versions(
             objects=['Node', 'Chassis'])
-        master_objs = release_mappings.RELEASE_MAPPING['master']['objects']
-        self.node_ver = master_objs['Node'][0]
-        self.chassis_ver = master_objs['Chassis'][0]
+        main_objs = release_mappings.RELEASE_MAPPING['main']['objects']
+        self.node_ver = main_objs['Node'][0]
+        self.chassis_ver = main_objs['Chassis'][0]
         self.node_old_ver = self._get_old_object_version(
             self.node_ver, obj_versions['Node'])
         self.chassis_old_ver = self._get_old_object_version(

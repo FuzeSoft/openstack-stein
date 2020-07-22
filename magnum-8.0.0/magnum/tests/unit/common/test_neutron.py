@@ -47,7 +47,7 @@ class NeutronTest(base.TestCase):
                                            '74b',
                     'port_details': {
                         'status': 'ACTIVE',
-                        'name': 'test-k8s-master',
+                        'name': 'test-k8s-main',
                         'admin_state_up': True,
                         'network_id': '7b9110b5-90a2-40bc-b892-07d641387760 ',
                         'device_owner': 'compute:nova',
@@ -107,7 +107,7 @@ class NeutronTest(base.TestCase):
                                            '74b',
                     'port_details': {
                         'status': 'ACTIVE',
-                        'name': 'test-k8s-master',
+                        'name': 'test-k8s-main',
                         'admin_state_up': True,
                         'network_id': '7b9110b5-90a2-40bc-b892-07d641387760 ',
                         'device_owner': 'compute:nova',

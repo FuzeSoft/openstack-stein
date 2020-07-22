@@ -63,7 +63,7 @@ class BaseMagnumClient(base.BaseMagnumTest):
         image_id = cliutils.env('IMAGE_ID')
         nic_id = cliutils.env('NIC_ID')
         flavor_id = cliutils.env('FLAVOR_ID')
-        master_flavor_id = cliutils.env('MASTER_FLAVOR_ID')
+        main_flavor_id = cliutils.env('MASTER_FLAVOR_ID')
         keypair_id = cliutils.env('KEYPAIR_ID')
         dns_nameserver = cliutils.env('DNS_NAMESERVER')
         copy_logs = cliutils.env('COPY_LOGS')
@@ -83,8 +83,8 @@ class BaseMagnumClient(base.BaseMagnumTest):
             image_id = image_id or config.get('magnum', 'image_id')
             nic_id = nic_id or config.get('magnum', 'nic_id')
             flavor_id = flavor_id or config.get('magnum', 'flavor_id')
-            master_flavor_id = master_flavor_id or config.get(
-                'magnum', 'master_flavor_id')
+            main_flavor_id = main_flavor_id or config.get(
+                'magnum', 'main_flavor_id')
             keypair_id = keypair_id or config.get('magnum', 'keypair_id')
             dns_nameserver = dns_nameserver or config.get(
                 'magnum', 'dns_nameserver')
@@ -101,7 +101,7 @@ class BaseMagnumClient(base.BaseMagnumTest):
         cls.image_id = image_id
         cls.nic_id = nic_id
         cls.flavor_id = flavor_id
-        cls.master_flavor_id = master_flavor_id
+        cls.main_flavor_id = main_flavor_id
         cls.keypair_id = keypair_id
         cls.dns_nameserver = dns_nameserver
         cls.copy_logs = str(copy_logs).lower() == 'true'
@@ -197,7 +197,7 @@ class BaseMagnumClient(base.BaseMagnumTest):
             external_network_id=cls.nic_id,
             image_id=cls.image_id,
             flavor_id=cls.flavor_id,
-            master_flavor_id=cls.master_flavor_id,
+            main_flavor_id=cls.main_flavor_id,
             network_driver=network_driver,
             volume_driver=volume_driver,
             dns_nameserver=cls.dns_nameserver,
@@ -273,7 +273,7 @@ req_extensions     = req_ext
 prompt = no
 [req_distinguished_name]
 CN = admin
-O = system:masters
+O = system:mains
 OU=OpenStack/Magnum
 C=US
 ST=TX
@@ -310,7 +310,7 @@ extendedKeyUsage = clientAuth
                 )
             except Exception:
                 # copy logs if setUpClass fails, may be this will not work
-                # as master_address, node_address would not be available, if
+                # as main_address, node_address would not be available, if
                 # not we can get that from nova
                 if cls.copy_logs:
                     cls.copy_logs_handler(
@@ -364,7 +364,7 @@ extendedKeyUsage = clientAuth
 
     def _get_nodes_from_cluster(self):
         nodes = []
-        nodes.append(self.cs.clusters.get(self.cluster.uuid).master_addresses)
+        nodes.append(self.cs.clusters.get(self.cluster.uuid).main_addresses)
         nodes.append(self.cs.clusters.get(self.cluster.uuid).node_addresses)
         return nodes
 
@@ -375,15 +375,15 @@ extendedKeyUsage = clientAuth
         stack_outputs = stack.to_dict().get('outputs', [])
         output_keys = []
         if self.cluster_template.coe == "kubernetes":
-            output_keys = ["kube_masters", "kube_minions"]
+            output_keys = ["kube_mains", "kube_minions"]
         elif self.cluster_template.coe == "swarm":
-            output_keys = ["swarm_masters", "swarm_nodes"]
+            output_keys = ["swarm_mains", "swarm_nodes"]
         elif self.cluster_template.coe == "swarm-mode":
-            output_keys = ["swarm_primary_master",
-                           "swarm_secondary_masters",
+            output_keys = ["swarm_primary_main",
+                           "swarm_secondary_mains",
                            "swarm_nodes"]
         elif self.cluster_template.coe == "mesos":
-            output_keys = ["mesos_master", "mesos_slaves"]
+            output_keys = ["mesos_main", "mesos_subordinates"]
 
         for output in stack_outputs:
             for key in output_keys:

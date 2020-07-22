@@ -48,22 +48,22 @@ class ServerAddressOutputMapping(template_def.OutputMapping):
         self.heat_output = self.public_ip_output_key
 
 
-class MasterAddressOutputMapping(ServerAddressOutputMapping):
-    public_ip_output_key = ['swarm_primary_master',
-                            'swarm_secondary_masters']
-    private_ip_output_key = ['swarm_primary_master_private',
-                             'swarm_secondary_masters_private']
+class MainAddressOutputMapping(ServerAddressOutputMapping):
+    public_ip_output_key = ['swarm_primary_main',
+                            'swarm_secondary_mains']
+    private_ip_output_key = ['swarm_primary_main_private',
+                             'swarm_secondary_mains_private']
 
     def set_output(self, stack, cluster_template, cluster):
         if not cluster_template.floating_ip_enabled:
             self.heat_output = self.private_ip_output_key
 
         LOG.debug("Using heat_output: %s", self.heat_output)
-        _master_addresses = []
+        _main_addresses = []
         for output in stack.to_dict().get('outputs', []):
             if output['output_key'] in self.heat_output:
-                _master_addresses += output['output_value']
-        setattr(cluster, self.cluster_attr, _master_addresses)
+                _main_addresses += output['output_value']
+        setattr(cluster, self.cluster_attr, _main_addresses)
 
 
 class NodeAddressOutputMapping(ServerAddressOutputMapping):
@@ -89,8 +89,8 @@ class SwarmModeTemplateDefinition(template_def.BaseTemplateDefinition):
                            param_type=str)
         self.add_parameter('number_of_nodes',
                            cluster_attr='node_count')
-        self.add_parameter('master_flavor',
-                           cluster_attr='master_flavor_id')
+        self.add_parameter('main_flavor',
+                           cluster_attr='main_flavor_id')
         self.add_parameter('node_flavor',
                            cluster_attr='flavor_id')
         self.add_parameter('docker_volume_size',
@@ -113,9 +113,9 @@ class SwarmModeTemplateDefinition(template_def.BaseTemplateDefinition):
         self.add_output('api_address',
                         cluster_attr='api_address',
                         mapping_type=SwarmModeApiAddressOutputMapping)
-        self.add_output('swarm_masters',
-                        cluster_attr='master_addresses',
-                        mapping_type=MasterAddressOutputMapping)
+        self.add_output('swarm_mains',
+                        cluster_attr='main_addresses',
+                        mapping_type=MainAddressOutputMapping)
         self.add_output('swarm_nodes',
                         cluster_attr='node_addresses',
                         mapping_type=NodeAddressOutputMapping)

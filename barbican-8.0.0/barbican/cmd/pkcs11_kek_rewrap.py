@@ -48,10 +48,10 @@ class KekRewrap(object):
         self.new_hmac_label = self.crypto_plugin.hmac_label
         self.new_mkek_type = self.crypto_plugin.mkek_key_type
         self.new_hmac_type = self.crypto_plugin.hmac_key_type
-        self.new_mkek = self.crypto_plugin._get_master_key(
+        self.new_mkek = self.crypto_plugin._get_main_key(
             self.new_mkek_type,
             self.new_mkek_label)
-        self.new_mkhk = self.crypto_plugin._get_master_key(
+        self.new_mkhk = self.crypto_plugin._get_main_key(
             self.new_hmac_type,
             self.new_hmac_label)
 
@@ -81,7 +81,7 @@ class KekRewrap(object):
             # record for the KEK metadata.  Therefore, for now assume that the
             # key types will not change.
 
-            # Get KEK's master keys
+            # Get KEK's main keys
             kek_mkek = self.pkcs11.get_key_handle(
                 self.new_mkek_type,
                 meta_dict['mkek_label'],
@@ -103,7 +103,7 @@ class KekRewrap(object):
             current_kek = self.pkcs11.unwrap_key(kek_mkek, iv, wrapped_key,
                                                  session)
 
-            # Wrap KEK with new master keys
+            # Wrap KEK with new main keys
             new_kek = self.pkcs11.wrap_key(self.new_mkek, current_kek,
                                            session)
             # Compute HMAC for rewrapped KEK

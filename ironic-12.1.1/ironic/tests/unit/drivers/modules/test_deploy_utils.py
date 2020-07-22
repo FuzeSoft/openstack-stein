@@ -1249,9 +1249,9 @@ class OtherFunctionTestCase(db_base.DbTestCase):
     def test_fetch_images(self, mock_clean_up_caches):
 
         mock_cache = mock.MagicMock(
-            spec_set=['fetch_image', 'master_dir'], master_dir='master_dir')
+            spec_set=['fetch_image', 'main_dir'], main_dir='main_dir')
         utils.fetch_images(None, mock_cache, [('uuid', 'path')])
-        mock_clean_up_caches.assert_called_once_with(None, 'master_dir',
+        mock_clean_up_caches.assert_called_once_with(None, 'main_dir',
                                                      [('uuid', 'path')])
         mock_cache.fetch_image.assert_called_once_with('uuid', 'path',
                                                        ctx=None,
@@ -1265,14 +1265,14 @@ class OtherFunctionTestCase(db_base.DbTestCase):
                                               actual=1)
 
         mock_cache = mock.MagicMock(
-            spec_set=['master_dir'], master_dir='master_dir')
+            spec_set=['main_dir'], main_dir='main_dir')
         mock_clean_up_caches.side_effect = [exc]
         self.assertRaises(exception.InstanceDeployFailure,
                           utils.fetch_images,
                           None,
                           mock_cache,
                           [('uuid', 'path')])
-        mock_clean_up_caches.assert_called_once_with(None, 'master_dir',
+        mock_clean_up_caches.assert_called_once_with(None, 'main_dir',
                                                      [('uuid', 'path')])
 
     @mock.patch('ironic.common.keystone.get_auth')
@@ -2812,8 +2812,8 @@ class TestStorageInterfaceUtils(db_base.DbTestCase):
 
 class InstanceImageCacheTestCase(db_base.DbTestCase):
     @mock.patch.object(fileutils, 'ensure_tree')
-    def test_with_master_path(self, mock_ensure_tree):
-        self.config(instance_master_path='/fake/path', group='pxe')
+    def test_with_main_path(self, mock_ensure_tree):
+        self.config(instance_main_path='/fake/path', group='pxe')
         self.config(image_cache_size=500, group='pxe')
         self.config(image_cache_ttl=30, group='pxe')
 
@@ -2824,8 +2824,8 @@ class InstanceImageCacheTestCase(db_base.DbTestCase):
         self.assertEqual(30 * 60, cache._cache_ttl)
 
     @mock.patch.object(fileutils, 'ensure_tree')
-    def test_without_master_path(self, mock_ensure_tree):
-        self.config(instance_master_path='', group='pxe')
+    def test_without_main_path(self, mock_ensure_tree):
+        self.config(instance_main_path='', group='pxe')
         self.config(image_cache_size=500, group='pxe')
         self.config(image_cache_ttl=30, group='pxe')
 

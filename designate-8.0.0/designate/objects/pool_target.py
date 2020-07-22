@@ -24,7 +24,7 @@ class PoolTarget(base.DictObjectMixin, base.PersistentObjectMixin,
         'type': fields.AnyField(nullable=True),
         'tsigkey_id': fields.UUIDFields(nullable=True),
         'description': fields.StringFields(maxLength=160, nullable=True),
-        'masters': fields.ObjectFields('PoolTargetMasterList'),
+        'mains': fields.ObjectFields('PoolTargetMainList'),
         'options': fields.ObjectFields('PoolTargetOptionList'),
         'backend': fields.AnyField(nullable=True),
     }

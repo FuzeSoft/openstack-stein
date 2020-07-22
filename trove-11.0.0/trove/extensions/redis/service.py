@@ -36,20 +36,20 @@ class RedisRootController(DefaultRootController):
         self._validate_can_perform_action(tenant_id, instance_id, is_cluster,
                                           "enable_root")
         password = DefaultRootController._get_password_from_body(body)
-        slave_instances = self._get_slaves(tenant_id, instance_id)
+        subordinate_instances = self._get_subordinates(tenant_id, instance_id)
         return self._instance_root_create(req, instance_id, password,
-                                          slave_instances)
+                                          subordinate_instances)
 
     def root_delete(self, req, tenant_id, instance_id, is_cluster):
         """Disable authentication for a redis instance and its replicas if any
         """
         self._validate_can_perform_action(tenant_id, instance_id, is_cluster,
                                           "disable_root")
-        slave_instances = self._get_slaves(tenant_id, instance_id)
-        return self._instance_root_delete(req, instance_id, slave_instances)
+        subordinate_instances = self._get_subordinates(tenant_id, instance_id)
+        return self._instance_root_delete(req, instance_id, subordinate_instances)
 
     def _instance_root_create(self, req, instance_id, password,
-                              slave_instances=None):
+                              subordinate_instances=None):
         LOG.info("Enabling authentication for instance '%s'.",
                  instance_id)
         LOG.info("req : '%s'\n\n", req)
@@ -70,19 +70,19 @@ class RedisRootController(DefaultRootController):
                   "'%(instance_id)s'.") % {'instance_id': instance_id}
             )
 
-        failed_slaves = []
-        for slave_id in slave_instances:
+        failed_subordinates = []
+        for subordinate_id in subordinate_instances:
             try:
-                LOG.info("Enabling authentication for slave instance "
-                         "'%s'.", slave_id)
-                RedisRoot.create(context, slave_id, password)
+                LOG.info("Enabling authentication for subordinate instance "
+                         "'%s'.", subordinate_id)
+                RedisRoot.create(context, subordinate_id, password)
             except exception.TroveError:
-                failed_slaves.append(slave_id)
+                failed_subordinates.append(subordinate_id)
 
         return wsgi.Result(
-            RedisRootCreatedView(root, failed_slaves).data(), 200)
+            RedisRootCreatedView(root, failed_subordinates).data(), 200)
 
-    def _instance_root_delete(self, req, instance_id, slave_instances=None):
+    def _instance_root_delete(self, req, instance_id, subordinate_instances=None):
         LOG.info("Disabling authentication for instance '%s'.",
                  instance_id)
         LOG.info("req : '%s'\n\n", req)
@@ -105,18 +105,18 @@ class RedisRootController(DefaultRootController):
                   "'%(instance_id)s'.") % {'instance_id': instance_id}
             )
 
-        failed_slaves = []
-        for slave_id in slave_instances:
+        failed_subordinates = []
+        for subordinate_id in subordinate_instances:
             try:
-                LOG.info("Disabling authentication for slave instance "
-                         "'%s'.", slave_id)
-                RedisRoot.delete(context, slave_id)
+                LOG.info("Disabling authentication for subordinate instance "
+                         "'%s'.", subordinate_id)
+                RedisRoot.delete(context, subordinate_id)
             except exception.TroveError:
-                failed_slaves.append(slave_id)
+                failed_subordinates.append(subordinate_id)
 
-        if len(failed_slaves) > 0:
+        if len(failed_subordinates) > 0:
             result = {
-                'failed_slaves': failed_slaves
+                'failed_subordinates': failed_subordinates
             }
             return wsgi.Result(result, 200)
 
@@ -141,22 +141,22 @@ class RedisRootController(DefaultRootController):
                           instance_id)
 
     @staticmethod
-    def _is_slave(tenant_id, instance_id):
+    def _is_subordinate(tenant_id, instance_id):
         args = {'id': instance_id, 'tenant_id': tenant_id}
         instance_info = DBInstance.find_by(**args)
-        return instance_info.slave_of_id
+        return instance_info.subordinate_of_id
 
     @staticmethod
-    def _get_slaves(tenant_id, instance_or_cluster_id, deleted=False):
-        LOG.info("Getting non-deleted slaves of instance '%s', "
+    def _get_subordinates(tenant_id, instance_or_cluster_id, deleted=False):
+        LOG.info("Getting non-deleted subordinates of instance '%s', "
                  "if any.", instance_or_cluster_id)
-        args = {'slave_of_id': instance_or_cluster_id, 'tenant_id': tenant_id,
+        args = {'subordinate_of_id': instance_or_cluster_id, 'tenant_id': tenant_id,
                 'deleted': deleted}
         db_infos = DBInstance.find_all(**args)
-        slaves = []
+        subordinates = []
         for db_info in db_infos:
-            slaves.append(db_info.id)
-        return slaves
+            subordinates.append(db_info.id)
+        return subordinates
 
     @staticmethod
     def _get_original_auth_password(context, instance_id):
@@ -178,7 +178,7 @@ class RedisRootController(DefaultRootController):
             raise exception.ClusterOperationNotSupported(
                 operation=operation)
 
-        is_slave = self._is_slave(tenant_id, instance_id)
-        if is_slave:
-            raise exception.SlaveOperationNotSupported(
+        is_subordinate = self._is_subordinate(tenant_id, instance_id)
+        if is_subordinate:
+            raise exception.SubordinateOperationNotSupported(
                 operation=operation)

@@ -64,11 +64,11 @@ def _generate_client_cert(issuer_name, ca_cert, ca_password, context=None):
     # TODO(strigazi): set subject name and organization per driver
     # For RBAC kubernetes cluster we need the client to have:
     # subject_name: admin
-    # organization_name system:masters
+    # organization_name system:mains
     # Non kubernetes drivers are not using the certificates fields
     # for authorization
     subject_name = 'admin'
-    organization_name = 'system:masters'
+    organization_name = 'system:mains'
     client_cert = x509.generate_client_certificate(
         issuer_name,
         subject_name,

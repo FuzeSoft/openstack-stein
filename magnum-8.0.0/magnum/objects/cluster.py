@@ -44,7 +44,7 @@ class Cluster(base.MagnumPersistentObject, base.MagnumObject,
     # Version 1.13: Added get_count_all method
     # Version 1.14: Added 'docker_volume_size' field
     # Version 1.15: Added 'labels' field
-    # Version 1.16: Added 'master_flavor_id' field
+    # Version 1.16: Added 'main_flavor_id' field
     # Version 1.17: Added 'flavor_id' field
     # Version 1.18: Added 'health_status' and 'health_status_reason' field
 
@@ -62,7 +62,7 @@ class Cluster(base.MagnumPersistentObject, base.MagnumObject,
         'keypair': fields.StringField(nullable=True),
         'docker_volume_size': fields.IntegerField(nullable=True),
         'labels': fields.DictOfStringsField(nullable=True),
-        'master_flavor_id': fields.StringField(nullable=True),
+        'main_flavor_id': fields.StringField(nullable=True),
         'flavor_id': fields.StringField(nullable=True),
         'stack_id': fields.StringField(nullable=True),
         'status': m_fields.ClusterStatusField(nullable=True),
@@ -73,9 +73,9 @@ class Cluster(base.MagnumPersistentObject, base.MagnumObject,
         'api_address': fields.StringField(nullable=True),
         'node_addresses': fields.ListOfStringsField(nullable=True),
         'node_count': fields.IntegerField(nullable=True),
-        'master_count': fields.IntegerField(nullable=True),
+        'main_count': fields.IntegerField(nullable=True),
         'discovery_url': fields.StringField(nullable=True),
-        'master_addresses': fields.ListOfStringsField(nullable=True),
+        'main_addresses': fields.ListOfStringsField(nullable=True),
         'ca_cert_ref': fields.StringField(nullable=True),
         'magnum_cert_ref': fields.StringField(nullable=True),
         'cluster_template': fields.ObjectField('ClusterTemplate'),
@@ -157,7 +157,7 @@ class Cluster(base.MagnumPersistentObject, base.MagnumObject,
         :param filters: filter dict, can includes 'cluster_template_id',
                         'name', 'node_count', 'stack_id', 'api_address',
                         'node_addresses', 'project_id', 'user_id',
-                        'status'(should be a status list), 'master_count'.
+                        'status'(should be a status list), 'main_count'.
         :returns: Count of matching clusters.
         """
         return cls.dbapi.get_cluster_count_all(context, filters=filters)
@@ -187,7 +187,7 @@ class Cluster(base.MagnumPersistentObject, base.MagnumObject,
         :param filters: filter dict, can includes 'cluster_template_id',
                         'name', 'node_count', 'stack_id', 'api_address',
                         'node_addresses', 'project_id', 'user_id',
-                        'status'(should be a status list), 'master_count'.
+                        'status'(should be a status list), 'main_count'.
         :returns: a list of :class:`Cluster` object.
 
         """

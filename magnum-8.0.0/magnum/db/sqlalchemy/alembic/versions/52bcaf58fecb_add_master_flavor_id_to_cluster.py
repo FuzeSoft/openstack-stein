@@ -9,7 +9,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-"""add master_flavor_id to cluster
+"""add main_flavor_id to cluster
 
 Revision ID: 52bcaf58fecb
 Revises: a0e7c8450ab1
@@ -26,5 +26,5 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    op.add_column('cluster', sa.Column('master_flavor_id',
+    op.add_column('cluster', sa.Column('main_flavor_id',
                                        sa.String(length=255), nullable=True))

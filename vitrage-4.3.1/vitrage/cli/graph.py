@@ -37,7 +37,7 @@ def main():
 
 def init(conf, workers):
     # Because fork duplicates the process memory.
-    # We should only create master process resources after workers are forked.
+    # We should only create main process resources after workers are forked.
     workers.wait_for_worker_start()
     VitrageGraphInit(conf, workers).run()
 

@@ -1645,16 +1645,16 @@ class PXEInterfacesTestCase(db_base.DbTestCase):
                                                  ipxe_timeout=120)
 
     @mock.patch.object(deploy_utils, 'fetch_images', autospec=True)
-    def test__cache_tftp_images_master_path(self, mock_fetch_image):
+    def test__cache_tftp_images_main_path(self, mock_fetch_image):
         temp_dir = tempfile.mkdtemp()
         self.config(tftp_root=temp_dir, group='pxe')
-        self.config(tftp_master_path=os.path.join(temp_dir,
-                                                  'tftp_master_path'),
+        self.config(tftp_main_path=os.path.join(temp_dir,
+                                                  'tftp_main_path'),
                     group='pxe')
         image_path = os.path.join(temp_dir, self.node.uuid,
                                   'deploy_kernel')
         image_info = {'deploy_kernel': ('deploy_kernel', image_path)}
-        fileutils.ensure_tree(CONF.pxe.tftp_master_path)
+        fileutils.ensure_tree(CONF.pxe.tftp_main_path)
         with task_manager.acquire(self.context, self.node.uuid,
                                   shared=True) as task:
             pxe_utils.cache_ramdisk_kernel(task, image_info)
@@ -1771,8 +1771,8 @@ class CleanUpPxeEnvTestCase(db_base.DbTestCase):
 
 class TFTPImageCacheTestCase(db_base.DbTestCase):
     @mock.patch.object(fileutils, 'ensure_tree')
-    def test_with_master_path(self, mock_ensure_tree):
-        self.config(tftp_master_path='/fake/path', group='pxe')
+    def test_with_main_path(self, mock_ensure_tree):
+        self.config(tftp_main_path='/fake/path', group='pxe')
         self.config(image_cache_size=500, group='pxe')
         self.config(image_cache_ttl=30, group='pxe')
 
@@ -1783,8 +1783,8 @@ class TFTPImageCacheTestCase(db_base.DbTestCase):
         self.assertEqual(30 * 60, cache._cache_ttl)
 
     @mock.patch.object(fileutils, 'ensure_tree')
-    def test_without_master_path(self, mock_ensure_tree):
-        self.config(tftp_master_path='', group='pxe')
+    def test_without_main_path(self, mock_ensure_tree):
+        self.config(tftp_main_path='', group='pxe')
         self.config(image_cache_size=500, group='pxe')
         self.config(image_cache_ttl=30, group='pxe')
 

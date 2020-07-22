@@ -39,7 +39,7 @@ class TestMagnumClusterTemplate(common.HeatTestCase):
           name: test_cluster_template
           image: fedora-21-atomic-2
           flavor: m1.small
-          master_flavor: m1.medium
+          main_flavor: m1.medium
           keypair: heat_key
           external_network: 0244b54d-ae1f-44f0-a24a-442760f1d681
           fixed_network: 0f59a3dd-fac1-4d03-b41a-d4115fbffa89
@@ -58,14 +58,14 @@ class TestMagnumClusterTemplate(common.HeatTestCase):
           registry_enabled: True
           volume_driver: rexray
           server_type: vm
-          master_lb_enabled: True
+          main_lb_enabled: True
           floating_ip_enabled: True
     '''
     expected = {
         'name': 'test_cluster_template',
         'image_id': 'fedora-21-atomic-2',
         'flavor_id': 'm1.small',
-        'master_flavor_id': 'm1.medium',
+        'main_flavor_id': 'm1.medium',
         'keypair_id': 'heat_key',
         'external_network_id': 'id_for_net_or_sub',
         'fixed_network': 'id_for_net_or_sub',
@@ -84,7 +84,7 @@ class TestMagnumClusterTemplate(common.HeatTestCase):
         'registry_enabled': True,
         'volume_driver': 'rexray',
         'server_type': 'vm',
-        'master_lb_enabled': True,
+        'main_lb_enabled': True,
         'floating_ip_enabled': True
     }
 

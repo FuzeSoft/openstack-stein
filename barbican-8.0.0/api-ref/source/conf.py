@@ -62,8 +62,8 @@ source_suffix = '.rst'
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = u'Key Manager API Reference'
@@ -249,7 +249,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'barbican.tex',
+    (main_doc, 'barbican.tex',
      u'OpenStack Key Manager API Documentation',
      u'OpenStack Foundation', 'manual'),
 ]
@@ -280,7 +280,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'barbican', u'OpenStack Key Manager API Documentation',
+    (main_doc, 'barbican', u'OpenStack Key Manager API Documentation',
      u'Openstack Foundation', 1)
 ]
 
@@ -294,7 +294,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Barbican', u'OpenStack Key Manager API Documentation',
+    (main_doc, 'Barbican', u'OpenStack Key Manager API Documentation',
      u'OpenStack Foundation', 'Barbican', 'OpenStack Key Manager',
      'Miscellaneous'),
 ]

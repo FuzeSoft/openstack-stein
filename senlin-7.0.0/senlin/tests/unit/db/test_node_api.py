@@ -403,19 +403,19 @@ class DBAPINodeTest(base.SenlinTestCase):
     def test_get_all_by_cluster_with_filters(self):
         cluster1 = shared.create_cluster(self.ctx, self.profile)
 
-        shared.create_node(self.ctx, None, self.profile, role="slave")
+        shared.create_node(self.ctx, None, self.profile, role="subordinate")
         node1 = shared.create_node(self.ctx, self.cluster, self.profile,
-                                   role="slave")
-        shared.create_node(self.ctx, self.cluster, self.profile, role="master")
+                                   role="subordinate")
+        shared.create_node(self.ctx, self.cluster, self.profile, role="main")
         shared.create_node(self.ctx, cluster1, self.profile, role="unknown")
 
         nodes = db_api.node_get_all_by_cluster(self.ctx, self.cluster.id,
-                                               filters={"role": ["slave"]})
+                                               filters={"role": ["subordinate"]})
         self.assertEqual(1, len(nodes))
         self.assertEqual(node1.id, nodes[0].id)
 
         nodes = db_api.node_get_all_by_cluster(self.ctx, cluster1.id,
-                                               filters={"role": "master"})
+                                               filters={"role": "main"})
         self.assertEqual(0, len(nodes))
 
     def test_get_all_by_cluster_diff_project(self):
@@ -520,13 +520,13 @@ class DBAPINodeTest(base.SenlinTestCase):
 
     def test_ids_by_cluster_with_filters(self):
         node0 = shared.create_node(self.ctx, None, self.profile,
-                                   role='slave')
+                                   role='subordinate')
         node1 = shared.create_node(self.ctx, self.cluster, self.profile,
-                                   role='master')
+                                   role='main')
         shared.create_node(self.ctx, self.cluster, self.profile)
 
         results = db_api.node_ids_by_cluster(self.ctx, self.cluster.id,
-                                             filters={'role': 'master'})
+                                             filters={'role': 'main'})
         self.assertEqual(1, len(results))
         self.assertEqual(node1.id, results[0])
 

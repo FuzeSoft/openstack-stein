@@ -44,9 +44,9 @@ class ServerAddressOutputMapping(template_def.OutputMapping):
               self).set_output(stack, cluster_template, cluster)
 
 
-class MasterAddressOutputMapping(ServerAddressOutputMapping):
-    public_ip_output_key = 'kube_masters'
-    private_ip_output_key = 'kube_masters_private'
+class MainAddressOutputMapping(ServerAddressOutputMapping):
+    public_ip_output_key = 'kube_mains'
+    private_ip_output_key = 'kube_mains_private'
 
 
 class NodeAddressOutputMapping(ServerAddressOutputMapping):
@@ -66,9 +66,9 @@ class CoreOSK8sTemplateDefinition(k8s_template_def.K8sTemplateDefinition):
         self.add_output('kube_minions',
                         cluster_attr='node_addresses',
                         mapping_type=NodeAddressOutputMapping)
-        self.add_output('kube_masters',
-                        cluster_attr='master_addresses',
-                        mapping_type=MasterAddressOutputMapping)
+        self.add_output('kube_mains',
+                        cluster_attr='main_addresses',
+                        mapping_type=MainAddressOutputMapping)
 
     def get_params(self, context, cluster_template, cluster, **kwargs):
         extra_params = kwargs.pop('extra_params', {})

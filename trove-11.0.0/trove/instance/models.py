@@ -184,7 +184,7 @@ class SimpleInstance(object):
                        load(self.ds_version.datastore_id))
         self.locality = locality
 
-        self.slave_list = None
+        self.subordinate_list = None
 
     def __repr__(self, *args, **kwargs):
         return "%s(%s)" % (self.name, self.id)
@@ -283,8 +283,8 @@ class SimpleInstance(object):
         return self.db_info.compute_instance_id
 
     @property
-    def slave_of_id(self):
-        return self.db_info.slave_of_id
+    def subordinate_of_id(self):
+        return self.db_info.subordinate_of_id
 
     @property
     def datastore_status(self):
@@ -433,12 +433,12 @@ class SimpleInstance(object):
                                       self.db_info.configuration_id)
 
     @property
-    def slaves(self):
-        if self.slave_list is None:
-            self.slave_list = DBInstance.find_all(tenant_id=self.tenant_id,
-                                                  slave_of_id=self.id,
+    def subordinates(self):
+        if self.subordinate_list is None:
+            self.subordinate_list = DBInstance.find_all(tenant_id=self.tenant_id,
+                                                  subordinate_of_id=self.id,
                                                   deleted=False).all()
-        return self.slave_list
+        return self.subordinate_list
 
     @property
     def cluster_id(self):
@@ -647,7 +647,7 @@ class BaseInstance(SimpleInstance):
                is_cluster_deleting(self.context, self.db_info.cluster_id)):
                 raise exception.ClusterInstanceOperationNotSupported()
 
-            if self.slaves:
+            if self.subordinates:
                 LOG.warning("Detach replicas before deleting replica source.")
                 raise exception.ReplicaSourceDeleteForbidden(
                     _("Detach replicas before deleting replica source."))
@@ -866,7 +866,7 @@ class Instance(BuiltInstance):
     def create(cls, context, name, flavor_id, image_id, databases, users,
                datastore, datastore_version, volume_size, backup_id,
                availability_zone=None, nics=None,
-               configuration_id=None, slave_of_id=None, cluster_config=None,
+               configuration_id=None, subordinate_of_id=None, cluster_config=None,
                replica_count=None, volume_type=None, modules=None,
                locality=None, region_name=None):
 
@@ -956,12 +956,12 @@ class Instance(BuiltInstance):
                     datastore1=backup_info.datastore.name,
                     datastore2=datastore.name)
 
-        if slave_of_id:
+        if subordinate_of_id:
             Backup.verify_swift_auth_token(context)
 
             if databases or users:
                 raise exception.ReplicaCreateWithUsersDatabasesError()
-            call_args['replica_of'] = slave_of_id
+            call_args['replica_of'] = subordinate_of_id
             call_args['replica_count'] = replica_count
             replication_support = datastore_cfg.replication_strategy
             if not replication_support:
@@ -971,20 +971,20 @@ class Instance(BuiltInstance):
                 # looking for replica source
                 replica_source = DBInstance.find_by(
                     context,
-                    id=slave_of_id,
+                    id=subordinate_of_id,
                     deleted=False)
-                if replica_source.slave_of_id:
+                if replica_source.subordinate_of_id:
                     raise exception.Forbidden(
                         _("Cannot create a replica of a replica %(id)s.")
-                        % {'id': slave_of_id})
+                        % {'id': subordinate_of_id})
                 if (CONF.verify_replica_volume_size
                         and replica_source.volume_size > volume_size):
                     raise exception.Forbidden(
                         _("Replica volume size should not be smaller than"
-                          " master's, replica volume size: %(replica_size)s"
-                          " and master volume size: %(master_size)s.")
+                          " main's, replica volume size: %(replica_size)s"
+                          " and main volume size: %(main_size)s.")
                         % {'replica_size': volume_size,
-                           'master_size': replica_source.volume_size})
+                           'main_size': replica_source.volume_size})
                 # load the replica source status to check if
                 # source is available
                 load_simple_instance_server_status(
@@ -995,19 +995,19 @@ class Instance(BuiltInstance):
                     None,
                     InstanceServiceStatus.find_by(
                         context,
-                        instance_id=slave_of_id))
+                        instance_id=subordinate_of_id))
                 replica_source_instance.validate_can_perform_action()
             except exception.ModelNotFoundError:
                 LOG.exception(
                     "Cannot create a replica of %(id)s "
                     "as that instance could not be found.",
-                    {'id': slave_of_id})
-                raise exception.NotFound(uuid=slave_of_id)
+                    {'id': subordinate_of_id})
+                raise exception.NotFound(uuid=subordinate_of_id)
         elif replica_count and replica_count != 1:
             raise exception.Forbidden(_(
                 "Replica count only valid when creating replicas. Cannot "
                 "create %(count)d instances.") % {'count': replica_count})
-        multi_replica = slave_of_id and replica_count and replica_count > 1
+        multi_replica = subordinate_of_id and replica_count and replica_count > 1
         instance_count = replica_count if multi_replica else 1
         if locality:
             call_args['locality'] = locality
@@ -1055,7 +1055,7 @@ class Instance(BuiltInstance):
                     datastore_version_id=datastore_version.id,
                     task_status=InstanceTasks.BUILDING,
                     configuration_id=configuration_id,
-                    slave_of_id=slave_of_id, cluster_id=cluster_id,
+                    subordinate_of_id=subordinate_of_id, cluster_id=cluster_id,
                     shard_id=shard_id, type=instance_type,
                     region_id=region_name)
                 LOG.debug("Tenant %(tenant)s created new Trove instance "
@@ -1105,7 +1105,7 @@ class Instance(BuiltInstance):
                 instance_id, instance_name, flavor, image_id, databases, users,
                 datastore_version.manager, datastore_version.packages,
                 volume_size, backup_id, availability_zone, root_password,
-                nics, overrides, slave_of_id, cluster_config,
+                nics, overrides, subordinate_of_id, cluster_config,
                 volume_type=volume_type, modules=module_list,
                 locality=locality)
 
@@ -1218,7 +1218,7 @@ class Instance(BuiltInstance):
         self.validate_can_perform_action()
         LOG.info("Detaching instance %s from its replication source.",
                  self.id)
-        if not self.slave_of_id:
+        if not self.subordinate_of_id:
             raise exception.BadRequest(_("Instance %s is not a replica.")
                                        % self.id)
 
@@ -1229,13 +1229,13 @@ class Instance(BuiltInstance):
     def promote_to_replica_source(self):
         self.validate_can_perform_action()
         LOG.info("Promoting instance %s to replication source.", self.id)
-        if not self.slave_of_id:
+        if not self.subordinate_of_id:
             raise exception.BadRequest(_("Instance %s is not a replica.")
                                        % self.id)
 
-        # Update task status of master and all slaves
-        master = BuiltInstance.load(self.context, self.slave_of_id)
-        for dbinfo in [master.db_info] + master.slaves:
+        # Update task status of main and all subordinates
+        main = BuiltInstance.load(self.context, self.subordinate_of_id)
+        for dbinfo in [main.db_info] + main.subordinates:
             setattr(dbinfo, 'task_status', InstanceTasks.PROMOTING)
             dbinfo.save()
 
@@ -1246,7 +1246,7 @@ class Instance(BuiltInstance):
         LOG.info("Ejecting replica source %s from its replication set.",
                  self.id)
 
-        if not self.slaves:
+        if not self.subordinates:
             raise exception.BadRequest(_("Instance %s is not a replica"
                                        " source.") % self.id)
         service = InstanceServiceStatus.find_by(instance_id=self.id)
@@ -1257,8 +1257,8 @@ class Instance(BuiltInstance):
                                          " as it has a current heartbeat")
                                        % self.id)
 
-        # Update task status of master and all slaves
-        for dbinfo in [self.db_info] + self.slaves:
+        # Update task status of main and all subordinates
+        for dbinfo in [self.db_info] + self.subordinates:
             setattr(dbinfo, 'task_status', InstanceTasks.EJECTING)
             dbinfo.save()
 
@@ -1601,7 +1601,7 @@ class DBInstance(dbmodels.DatabaseModelBase):
                     'task_start_time', 'volume_id', 'flavor_id',
                     'volume_size', 'tenant_id', 'server_status',
                     'deleted', 'deleted_at', 'datastore_version_id',
-                    'configuration_id', 'slave_of_id', 'cluster_id',
+                    'configuration_id', 'subordinate_of_id', 'cluster_id',
                     'shard_id', 'type', 'region_id', 'encrypted_key']
     _table_name = 'instances'
 

@@ -20,7 +20,7 @@ from designate.backend import base
 LOG = logging.getLogger(__name__)
 
 GOOD_STATUSES = [
-    'integrated', 'grades.master-compatible', 'release-compatible'
+    'integrated', 'grades.main-compatible', 'release-compatible'
 ]
 
 

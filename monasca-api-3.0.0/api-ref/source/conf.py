@@ -40,8 +40,8 @@ source_suffix = '.rst'
 # The encoding of source files.
 source_encoding = 'utf-8'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General details about project
 repository_name = u'openstack/monasca-api'
@@ -189,7 +189,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'MonitoringApiRef.tex', u'Monitoring Service API Reference',
+    (main_doc, 'MonitoringApiRef.tex', u'Monitoring Service API Reference',
      [author], 'manual'),
 ]
 

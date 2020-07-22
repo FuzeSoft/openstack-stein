@@ -843,7 +843,7 @@ class CloudController(object):
                 Not used now.
             encrypted (boolean): Whether the volume should be encrypted.
                 Not used now.
-            kms_key_id (str): The full ARN of AWS KMS master key to use when
+            kms_key_id (str): The full ARN of AWS KMS main key to use when
                 creating the encrypted volume.
                 Not used now.
 

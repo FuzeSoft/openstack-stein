@@ -18,8 +18,8 @@ from trove.extensions.common.views import UserView
 
 
 class RedisRootCreatedView(UserView):
-    def __init__(self, user, failed_slaves):
-        self.failed_slaves = failed_slaves
+    def __init__(self, user, failed_subordinates):
+        self.failed_subordinates = failed_subordinates
         super(RedisRootCreatedView, self).__init__(user)
 
     def data(self):
@@ -27,4 +27,4 @@ class RedisRootCreatedView(UserView):
             "name": self.user.name,
             "password": self.user.password
         }
-        return {"user": user_dict, "failed_slaves": self.failed_slaves}
+        return {"user": user_dict, "failed_subordinates": self.failed_subordinates}

@@ -1416,8 +1416,8 @@ class Connection(api.Connection):
                   migrated (at the beginning of this call) and 2. the number
                   of migrated objects.
         """
-        # NOTE(rloo): 'master' has the most recent (latest) versions.
-        mapping = release_mappings.RELEASE_MAPPING['master']['objects']
+        # NOTE(rloo): 'main' has the most recent (latest) versions.
+        mapping = release_mappings.RELEASE_MAPPING['main']['objects']
         total_to_migrate = 0
         total_migrated = 0
 

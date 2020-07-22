@@ -73,7 +73,7 @@ class CertManagerTestCase(base.BaseTestCase):
     @mock.patch('magnum.common.short_id.generate_id')
     def test_generate_client_cert(self, mock_generate_id, mock_generate_cert):
         expected_name = 'admin'
-        expected_organization_name = 'system:masters'
+        expected_organization_name = 'system:mains'
         expected_ca_name = 'ca-name'
         expected_password = 'password'
         expected_ca_password = 'ca-password'

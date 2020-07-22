@@ -58,9 +58,9 @@ def _session_for_write():
     return enginefacade.writer.using(_CONTEXT)
 
 
-def get_session(use_slave=False, **kwargs):
+def get_session(use_subordinate=False, **kwargs):
     return main_context_manager._factory.get_legacy_facade().get_session(
-        use_slave=use_slave, **kwargs)
+        use_subordinate=use_subordinate, **kwargs)
 
 
 def model_query(context, model, *args, **kwargs):

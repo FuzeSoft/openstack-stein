@@ -58,23 +58,23 @@ class TestRedisRootController(trove_testtools.TestCase):
             tenant_id=self.tenant_id,
             volume_size=None,
             task_status=InstanceTasks.NONE)
-        self.master_db_info = DBInstance.create(
-            id="redis-master",
-            name="redis-master",
+        self.main_db_info = DBInstance.create(
+            id="redis-main",
+            name="redis-main",
             flavor_id=1,
             datastore_version_id=self.datastore_version.id,
             tenant_id=self.tenant_id,
             volume_size=None,
             task_status=InstanceTasks.NONE)
-        self.slave_db_info = DBInstance.create(
-            id="redis-slave",
-            name="redis-slave",
+        self.subordinate_db_info = DBInstance.create(
+            id="redis-subordinate",
+            name="redis-subordinate",
             flavor_id=1,
             datastore_version_id=self.datastore_version.id,
             tenant_id=self.tenant_id,
             volume_size=None,
             task_status=InstanceTasks.NONE,
-            slave_of_id=self.master_db_info.id)
+            subordinate_of_id=self.main_db_info.id)
 
         super(TestRedisRootController, self).setUp()
         self.controller = RedisRootController()
@@ -82,8 +82,8 @@ class TestRedisRootController(trove_testtools.TestCase):
     def tearDown(self):
         self.datastore.delete()
         self.datastore_version.delete()
-        self.master_db_info.delete()
-        self.slave_db_info.delete()
+        self.main_db_info.delete()
+        self.subordinate_db_info.delete()
         super(TestRedisRootController, self).tearDown()
 
     @patch.object(instance_models.Instance, "load")
@@ -108,7 +108,7 @@ class TestRedisRootController(trove_testtools.TestCase):
 
     @patch.object(instance_models.Instance, "load")
     @patch.object(models.Root, "create")
-    def test_root_create_on_master_instance(self, root_create, *args):
+    def test_root_create_on_main_instance(self, root_create, *args):
         user = Mock()
         context = Mock()
         context.user = Mock()
@@ -117,17 +117,17 @@ class TestRedisRootController(trove_testtools.TestCase):
         req.environ = Mock()
         req.environ.__getitem__ = Mock(return_value=context)
         tenant_id = self.tenant_id
-        instance_id = self.master_db_info.id
-        slave_instance_id = self.slave_db_info.id
+        instance_id = self.main_db_info.id
+        subordinate_instance_id = self.subordinate_db_info.id
         is_cluster = False
         password = Mock()
         body = {"password": password}
         self.controller.root_create(req, body, tenant_id,
                                     instance_id, is_cluster)
-        root_create.assert_called_with(context, slave_instance_id,
+        root_create.assert_called_with(context, subordinate_instance_id,
                                        password)
 
-    def test_root_create_on_slave(self):
+    def test_root_create_on_subordinate(self):
         user = Mock()
         context = Mock()
         context.user = Mock()
@@ -136,18 +136,18 @@ class TestRedisRootController(trove_testtools.TestCase):
         req.environ = Mock()
         req.environ.__getitem__ = Mock(return_value=context)
         tenant_id = self.tenant_id
-        instance_id = self.slave_db_info.id
+        instance_id = self.subordinate_db_info.id
         is_cluster = False
         body = {}
         self.assertRaises(
-            exception.SlaveOperationNotSupported,
+            exception.SubordinateOperationNotSupported,
             self.controller.root_create,
             req, body, tenant_id, instance_id, is_cluster)
 
     def test_root_create_with_cluster(self):
         req = Mock()
         tenant_id = self.tenant_id
-        instance_id = self.master_db_info.id
+        instance_id = self.main_db_info.id
         is_cluster = True
         body = {}
         self.assertRaises(
@@ -177,38 +177,38 @@ class TestRedisRootController(trove_testtools.TestCase):
     @patch.object(RedisRoot, "get_auth_password")
     @patch.object(models.Root, "delete")
     @patch.object(models.Root, "load")
-    def test_root_delete_on_master_instance(self, root_load,
+    def test_root_delete_on_main_instance(self, root_load,
                                             root_delete, *args):
         context = Mock()
         req = Mock()
         req.environ = Mock()
         req.environ.__getitem__ = Mock(return_value=context)
         tenant_id = self.tenant_id
-        instance_id = self.master_db_info.id
-        slave_instance_id = self.slave_db_info.id
+        instance_id = self.main_db_info.id
+        subordinate_instance_id = self.subordinate_db_info.id
         is_cluster = False
         root_load.return_value = True
         self.controller.root_delete(req, tenant_id, instance_id, is_cluster)
         root_load.assert_called_with(context, instance_id)
-        root_delete.assert_called_with(context, slave_instance_id)
+        root_delete.assert_called_with(context, subordinate_instance_id)
 
-    def test_root_delete_on_slave(self):
+    def test_root_delete_on_subordinate(self):
         context = Mock()
         req = Mock()
         req.environ = Mock()
         req.environ.__getitem__ = Mock(return_value=context)
         tenant_id = self.tenant_id
-        instance_id = self.slave_db_info.id
+        instance_id = self.subordinate_db_info.id
         is_cluster = False
         self.assertRaises(
-            exception.SlaveOperationNotSupported,
+            exception.SubordinateOperationNotSupported,
             self.controller.root_delete,
             req, tenant_id, instance_id, is_cluster)
 
     def test_root_delete_with_cluster(self):
         req = Mock()
         tenant_id = self.tenant_id
-        instance_id = self.master_db_info.id
+        instance_id = self.main_db_info.id
         is_cluster = True
         self.assertRaises(
             exception.ClusterOperationNotSupported,

@@ -71,7 +71,7 @@ class TestGlanceManage(functional.FunctionalTest):
         return exitcode, out
 
     def _assert_table_exists(self, db_table):
-        cmd = ("sqlite3 {0} \"SELECT name FROM sqlite_master WHERE "
+        cmd = ("sqlite3 {0} \"SELECT name FROM sqlite_main WHERE "
                "type='table' AND name='{1}'\"").format(self.db_filepath,
                                                        db_table)
         exitcode, out, err = execute(cmd, raise_error=True)

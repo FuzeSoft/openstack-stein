@@ -1707,22 +1707,22 @@ class TestDatabaseTasks(base.TestCase):
                                     mock_amphora_repo_update,
                                     mock_amphora_repo_delete):
 
-        mark_amp_master_indb = database_tasks.MarkAmphoraMasterInDB()
-        mark_amp_master_indb.execute(_amphora_mock)
+        mark_amp_main_indb = database_tasks.MarkAmphoraMainInDB()
+        mark_amp_main_indb.execute(_amphora_mock)
         repo.AmphoraRepository.update.assert_called_once_with(
             'TEST', AMP_ID, role='MASTER',
             vrrp_priority=constants.ROLE_MASTER_PRIORITY)
 
         mock_amphora_repo_update.reset_mock()
 
-        mark_amp_master_indb.revert("BADRESULT", _amphora_mock)
+        mark_amp_main_indb.revert("BADRESULT", _amphora_mock)
         repo.AmphoraRepository.update.assert_called_once_with(
             'TEST', AMP_ID, role=None, vrrp_priority=None)
 
         mock_amphora_repo_update.reset_mock()
 
         failure_obj = failure.Failure.from_exception(Exception("TESTEXCEPT"))
-        mark_amp_master_indb.revert(failure_obj, _amphora_mock)
+        mark_amp_main_indb.revert(failure_obj, _amphora_mock)
         self.assertFalse(repo.AmphoraRepository.update.called)
 
         mock_amphora_repo_update.reset_mock()

@@ -47,7 +47,7 @@ class TestSwarmAPIs(ClusterTest):
         if self.cluster_is_ready is True:
             return
         # Note(eliqiao): In our test cases, docker client or magnum client will
-        # try to connect to swarm service which is running on master node,
+        # try to connect to swarm service which is running on main node,
         # the endpoint is cluster.api_address(listen port is included), but the
         # service is not ready right after the cluster was created, sleep for
         # an acceptable time to wait for service being started.
@@ -142,7 +142,7 @@ class TestSwarmAPIs(ClusterTest):
         self.assertEqual([], resp)
 
     def test_access_with_non_tls_client(self):
-        """Try to contact master's docker using the TCP protocol.
+        """Try to contact main's docker using the TCP protocol.
 
         TCP returns ConnectionError whereas HTTPS returns SSLError. The
         default protocol we use in magnum is TCP which works fine docker

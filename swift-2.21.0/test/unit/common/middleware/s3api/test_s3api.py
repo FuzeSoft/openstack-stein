@@ -1214,9 +1214,9 @@ class TestS3ApiMiddleware(S3ApiTestCase):
                 # and then, set X-Identity-Status: Invalid at [2]
                 #
                 # 1: https://github.com/openstack/keystonemiddleware/blob/
-                #    master/keystonemiddleware/auth_token/__init__.py#L620
+                #    main/keystonemiddleware/auth_token/__init__.py#L620
                 # 2: https://github.com/openstack/keystonemiddleware/blob/
-                #    master/keystonemiddleware/auth_token/__init__.py#L627-L629
+                #    main/keystonemiddleware/auth_token/__init__.py#L627-L629
 
                 self.assertEqual('403 Forbidden', status)
                 self.assertEqual(1, mock_req.call_count)

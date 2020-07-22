@@ -33,8 +33,8 @@ source_suffix = '.rst'
 # The encoding of source files.
 source_encoding = 'utf-8'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 repository_name = u'openstack/monasca-api'
@@ -189,7 +189,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [(
-     master_doc, 'MonitoringApiReleaseNotes.tex',
+     main_doc, 'MonitoringApiReleaseNotes.tex',
      u'Monitoring API Release Notes', [author],
      'manual'
 )]
@@ -220,7 +220,7 @@ latex_documents = [(
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'monitoringapireleasenotes',
+    (main_doc, 'monitoringapireleasenotes',
      u'Monitoring API Release Notes', [author],
      1)
 ]

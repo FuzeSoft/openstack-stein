@@ -38,8 +38,8 @@ source_suffix = '.rst'
 # The encoding of source files.
 source_encoding = 'utf-8'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General details about project
 repository_name = u'openstack/monasca-log-api'
@@ -193,7 +193,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'MonascaLogApi.tex', u'Monasca Log API Documentation',
+    (main_doc, 'MonascaLogApi.tex', u'Monasca Log API Documentation',
      u'OpenStack Foundation', 'manual'),
 ]
 
@@ -223,7 +223,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'monascalogapi', u'Monasca Log API Documentation',
+    (main_doc, 'monascalogapi', u'Monasca Log API Documentation',
      [u'OpenStack Foundation'], 1)
 ]
 
@@ -237,7 +237,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'MonascaLogAPI', u'Monasca Log API Documentation',
+    (main_doc, 'MonascaLogAPI', u'Monasca Log API Documentation',
      u'OpenStack Foundation', 'MonascaLogAPI', 'Monasca Log API',
      'Miscellaneous'),
 ]

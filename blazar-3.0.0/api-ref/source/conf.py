@@ -56,8 +56,8 @@ templates_path = ['_templates']
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = u'Reservation API Reference'
@@ -132,6 +132,6 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ReservationAPIReference.tex', u'OpenStack Reservation API Reference Documentation',
+    (main_doc, 'ReservationAPIReference.tex', u'OpenStack Reservation API Reference Documentation',
      u'OpenStack Foundation', 'manual'),
 ]

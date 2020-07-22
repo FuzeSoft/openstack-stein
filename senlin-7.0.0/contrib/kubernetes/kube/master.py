@@ -27,7 +27,7 @@ LOG = logging.getLogger(__name__)
 
 
 class ServerProfile(base.KubeBaseProfile):
-    """Profile for an kubernetes master server."""
+    """Profile for an kubernetes main server."""
 
     VERSIONS = {
         '1.0': [
@@ -49,9 +49,9 @@ class ServerProfile(base.KubeBaseProfile):
         KUBE_MASTER_FLOATINGIP, KUBE_MASTER_FLOATINGIP_ID,
         SCALE_OUT_RECV_ID, SCALE_OUT_URL,
     ) = (
-        'kubeadm_token', 'kube_master_ip', 'security_group',
+        'kubeadm_token', 'kube_main_ip', 'security_group',
         'private_network', 'private_subnet', 'private_router',
-        'kube_master_floatingip', 'kube_master_floatingip_id',
+        'kube_main_floatingip', 'kube_main_floatingip_id',
         'scale_out_recv_id', 'scale_out_url',
     )
 
@@ -160,7 +160,7 @@ class ServerProfile(base.KubeBaseProfile):
             msg = ("Cluster %s delete failed, "
                    "Node clusters %s must be deleted first." %
                    (obj.id, obj.dependents['kube-node']))
-            raise exc.EResourceDeletion(type='kubernetes.master',
+            raise exc.EResourceDeletion(type='kubernetes.main',
                                         id=obj.id,
                                         message=msg)
         self._delete_network(obj)
@@ -212,7 +212,7 @@ class ServerProfile(base.KubeBaseProfile):
                 obj, block_device_mapping_v2, 'create')
 
         # user_data = self.properties[self.USER_DATA]
-        user_data = base.loadScript('./scripts/master.sh')
+        user_data = base.loadScript('./scripts/main.sh')
         if user_data is not None:
             # Use jinja2 to replace variables defined in user_data
             try:
@@ -233,9 +233,9 @@ class ServerProfile(base.KubeBaseProfile):
             server = self.compute(obj).server_create(**kwargs)
             self.compute(obj).wait_for_server(server.id)
             server = self.compute(obj).server_get(server.id)
-            self._update_master_ip(obj, server.addresses[''][0]['addr'])
+            self._update_main_ip(obj, server.addresses[''][0]['addr'])
             self._associate_floatingip(obj, server)
-            LOG.info("Created master node: %s" % server.id)
+            LOG.info("Created main node: %s" % server.id)
             return server.id
         except exc.InternalError as ex:
             if server and server.id:

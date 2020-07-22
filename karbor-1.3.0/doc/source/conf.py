@@ -56,8 +56,8 @@ sample_policy_basename = '_static/karbor'
 # The suffix of source filenames.
 source_suffix = '.rst'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = u'karbor'

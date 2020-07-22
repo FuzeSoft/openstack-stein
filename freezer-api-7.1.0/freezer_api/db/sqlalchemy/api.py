@@ -39,7 +39,7 @@ api_context_manager = enginefacade.transaction_context()
 def _get_db_conf(conf_group, connection=None):
     kw = dict(
         connection=connection or conf_group.connection,
-        slave_connection=conf_group.slave_connection,
+        subordinate_connection=conf_group.subordinate_connection,
         sqlite_fk=False,
         __autocommit=True,
         expire_on_commit=False,
@@ -84,13 +84,13 @@ def get_context_manager(context):
     return _context_manager_from_context(context) or main_context_manager
 
 
-def get_engine(use_slave=False, context=None):
+def get_engine(use_subordinate=False, context=None):
     """Get a database engine object.
-    :param use_slave: Whether to use the slave connection
+    :param use_subordinate: Whether to use the subordinate connection
     :param context: The request context that can contain a context manager
     """
     ctxt_mgr = get_context_manager(context)
-    return ctxt_mgr.get_legacy_facade().get_engine(use_slave=use_slave)
+    return ctxt_mgr.get_legacy_facade().get_engine(use_subordinate=use_subordinate)
 
 
 def get_db_session(context=None):

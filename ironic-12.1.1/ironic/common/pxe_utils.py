@@ -953,9 +953,9 @@ def prepare_instance_pxe_config(task, image_info,
 @image_cache.cleanup(priority=25)
 class TFTPImageCache(image_cache.ImageCache):
     def __init__(self):
-        master_path = CONF.pxe.tftp_master_path or None
+        main_path = CONF.pxe.tftp_main_path or None
         super(TFTPImageCache, self).__init__(
-            master_path,
+            main_path,
             # MiB -> B
             cache_size=CONF.pxe.image_cache_size * 1024 * 1024,
             # min -> sec

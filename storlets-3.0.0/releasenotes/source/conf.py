@@ -63,8 +63,8 @@ source_suffix = '.rst'
 #
 # source_encoding = 'utf-8-sig'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = u'Storlets Release Notes'
@@ -275,7 +275,7 @@ htmlhelp_basename = 'StorletsReleaseNotesdoc'
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 # latex_documents = [
-#     (master_doc, 'storlets.tex', u'Storlets Documentation',
+#     (main_doc, 'storlets.tex', u'Storlets Documentation',
 #      u'Storlets', 'manual'),
 # ]
 
@@ -317,7 +317,7 @@ htmlhelp_basename = 'StorletsReleaseNotesdoc'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 # man_pages = [
-#     (master_doc, 'Storlets', u'Storlets Documentation',
+#     (main_doc, 'Storlets', u'Storlets Documentation',
 #      [author], 1)
 # ]
 
@@ -332,7 +332,7 @@ htmlhelp_basename = 'StorletsReleaseNotesdoc'
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 # texinfo_documents = [
-#     (master_doc, 'Storlets', u'Storlets Documentation',
+#     (main_doc, 'Storlets', u'Storlets Documentation',
 #      author, 'Storlets', 'One line description of project.',
 #      'Miscellaneous'),
 # ]

@@ -22,7 +22,7 @@ import uuid
 from swift.common import storage_policy, constraints
 from swift.common.middleware import copy
 from swift.common.middleware import crypto
-from swift.common.middleware.crypto import keymaster
+from swift.common.middleware.crypto import keymain
 from swift.common.middleware.crypto.crypto_utils import (
     load_crypto_meta, Crypto)
 from swift.common.ring import Ring
@@ -70,7 +70,7 @@ class TestCryptoPipelineChanges(unittest.TestCase):
         km_conf = dict(TEST_KEYMASTER_CONF)
         if root_secret_id is not None:
             km_conf['active_root_secret_id'] = root_secret_id
-        self.km = keymaster.KeyMaster(self.encryption, km_conf)
+        self.km = keymain.KeyMain(self.encryption, km_conf)
         self.crypto_app = self.km  # for clarity
         self.crypto_app.logger = self.encryption.logger
 

@@ -71,18 +71,18 @@ class ReleaseMappingsTestCase(base.TestCase):
 
     def test_current_rpc_version(self):
         self.assertEqual(rpcapi.ConductorAPI.RPC_API_VERSION,
-                         release_mappings.RELEASE_MAPPING['master']['rpc'])
+                         release_mappings.RELEASE_MAPPING['main']['rpc'])
 
     def test_current_object_versions(self):
         registered_objects = obj_base.IronicObjectRegistry.obj_classes()
         obj_versions = release_mappings.get_object_versions(
-            releases=['master'])
+            releases=['main'])
         for obj, vers in obj_versions.items():
             # vers is a set of versions, not ordered
             self.assertIn(registered_objects[obj][0].VERSION, vers)
 
     def test_contains_all_db_objects(self):
-        self.assertIn('master', release_mappings.RELEASE_MAPPING)
+        self.assertIn('main', release_mappings.RELEASE_MAPPING)
         model_names = set((s.__name__ for s in models.Base.__subclasses__()))
         exceptions = set(['NodeTag', 'ConductorHardwareInterfaces',
                           'NodeTrait', 'BIOSSetting', 'DeployTemplateStep'])
@@ -93,7 +93,7 @@ class ReleaseMappingsTestCase(base.TestCase):
         # NodeTrait maps to two objects
         model_names |= set(['Trait', 'TraitList'])
         object_names = set(
-            release_mappings.RELEASE_MAPPING['master']['objects'])
+            release_mappings.RELEASE_MAPPING['main']['objects'])
         self.assertEqual(model_names, object_names)
 
     def test_rpc_and_objects_versions_supported(self):
@@ -131,7 +131,7 @@ class GetObjectVersionsTestCase(base.TestCase):
                 'Portgroup': ['1.5', '1.4'],
             }
         },
-        'master': {
+        'main': {
             'api': '1.34',
             'rpc': '1.40',
             'objects': {

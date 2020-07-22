@@ -509,7 +509,7 @@ def fetch_images(ctx, cache, images_info, force_raw=True):
     """
 
     try:
-        image_cache.clean_up_caches(ctx, cache.master_dir, images_info)
+        image_cache.clean_up_caches(ctx, cache.main_dir, images_info)
     except exception.InsufficientDiskSpace as e:
         raise exception.InstanceDeployFailure(reason=e)
 
@@ -1150,9 +1150,9 @@ def direct_deploy_should_convert_raw_image(node):
 class InstanceImageCache(image_cache.ImageCache):
 
     def __init__(self):
-        master_path = CONF.pxe.instance_master_path or None
+        main_path = CONF.pxe.instance_main_path or None
         super(self.__class__, self).__init__(
-            master_path,
+            main_path,
             # MiB -> B
             cache_size=CONF.pxe.image_cache_size * 1024 * 1024,
             # min -> sec

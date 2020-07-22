@@ -156,7 +156,7 @@ class CryptoWSGIContext(WSGIContext):
         self.server_type = server_type
 
     def get_keys(self, env, required=None, key_id=None):
-        # Get the key(s) from the keymaster
+        # Get the key(s) from the keymain
         required = required if required is not None else [self.server_type]
         try:
             fetch_crypto_keys = env[CRYPTO_KEY_CALLBACK]
@@ -195,8 +195,8 @@ class CryptoWSGIContext(WSGIContext):
         return keys
 
     def get_multiple_keys(self, env):
-        # get a list of keys from the keymaster containing one dict of keys for
-        # each of the keymaster root secret ids
+        # get a list of keys from the keymain containing one dict of keys for
+        # each of the keymain root secret ids
         keys = [self.get_keys(env)]
         active_key_id = keys[0]['id']
         for other_key_id in keys[0].get('all_ids', []):
