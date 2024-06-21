@@ -65,8 +65,8 @@ source_suffix = '.rst'
 # The encoding of source files.
 source_encoding = 'utf-8'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -216,7 +216,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'MonitoringApi.tex', u'Monasca Documentation',
+    (main_doc, 'MonitoringApi.tex', u'Monasca Documentation',
      [author], 'manual'),
 ]
 
@@ -246,7 +246,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'monitoringapi', u'Monasca Documentation',
+    (main_doc, 'monitoringapi', u'Monasca Documentation',
      [author], 1)
 ]
 

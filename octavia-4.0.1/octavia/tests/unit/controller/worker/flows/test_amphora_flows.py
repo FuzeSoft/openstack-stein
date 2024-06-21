@@ -111,7 +111,7 @@ class TestAmphoraFlows(base.TestCase):
         self.assertEqual(5, len(amp_flow.provides))
         self.assertEqual(3, len(amp_flow.requires))
 
-    def test_get_cert_master_create_amphora_for_lb_flow(
+    def test_get_cert_main_create_amphora_for_lb_flow(
             self, mock_get_net_driver):
 
         self.AmpFlow = amphora_flows.AmphoraFlows()
@@ -132,7 +132,7 @@ class TestAmphoraFlows(base.TestCase):
         self.assertEqual(5, len(amp_flow.provides))
         self.assertEqual(3, len(amp_flow.requires))
 
-    def test_get_cert_master_rest_anti_affinity_create_amphora_for_lb_flow(
+    def test_get_cert_main_rest_anti_affinity_create_amphora_for_lb_flow(
             self, mock_get_net_driver):
 
         self.conf.config(group="nova", enable_anti_affinity=True)

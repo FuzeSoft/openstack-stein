@@ -38,7 +38,7 @@ magnum_template = '''
           keypair: key
           cluster_template: 123456
           node_count: 5
-          master_count: 1
+          main_count: 1
           discovery_url: https://discovery.etcd.io
           create_timeout: 15
       test_cluster_min:
@@ -59,12 +59,12 @@ class TestMagnumCluster(common.HeatTestCase):
         self.fake_keypair = u'key'
         self.fake_cluster_template = '123456'
         self.fake_node_count = 5
-        self.fake_master_count = 1
+        self.fake_main_count = 1
         self.fake_discovery_url = u'https://discovery.etcd.io'
         self.fake_create_timeout = 15
         self.fake_api_address = 'https://192.168.0.249:6443'
         self.fake_coe_version = 'v1.5.2'
-        self.fake_master_addresses = ['192.168.0.2']
+        self.fake_main_addresses = ['192.168.0.2']
         self.fake_status = 'bar'
         self.fake_node_addresses = ['192.168.0.3', '192.168.0.4',
                                     '192.168.0.5', '192.168.0.6',
@@ -95,11 +95,11 @@ class TestMagnumCluster(common.HeatTestCase):
         value.uuid = self.resource_id
         value.coe_version = self.fake_coe_version
         value.node_count = self.fake_node_count
-        value.master_count = self.fake_master_count
+        value.main_count = self.fake_main_count
         value.discovery_url = self.fake_discovery_url
         value.create_timeout = self.fake_create_timeout
         value.api_address = self.fake_api_address
-        value.master_addresses = self.fake_master_addresses
+        value.main_addresses = self.fake_main_addresses
         value.status = self.fake_status
         value.node_addresses = self.fake_node_addresses
         value.status_reason = self.fake_status_reason
@@ -135,7 +135,7 @@ class TestMagnumCluster(common.HeatTestCase):
             self.fake_node_count,
             b.properties.get(cluster.Cluster.NODE_COUNT))
         self.assertEqual(
-            self.fake_master_count,
+            self.fake_main_count,
             b.properties.get(cluster.Cluster.MASTER_COUNT))
         self.assertEqual(
             self.fake_discovery_url,
@@ -151,7 +151,7 @@ class TestMagnumCluster(common.HeatTestCase):
             keypair=self.fake_keypair,
             cluster_template_id=self.fake_cluster_template,
             node_count=self.fake_node_count,
-            master_count=self.fake_master_count,
+            main_count=self.fake_main_count,
             discovery_url=self.fake_discovery_url,
             create_timeout=self.fake_create_timeout
         )
@@ -189,7 +189,7 @@ class TestMagnumCluster(common.HeatTestCase):
             keypair=None,
             cluster_template_id=self.fake_cluster_template,
             node_count=1,
-            master_count=1,
+            main_count=1,
             discovery_url=None,
             create_timeout=60)
 
@@ -257,7 +257,7 @@ class TestMagnumCluster(common.HeatTestCase):
             {
                 cluster.Cluster.CREATE_TIMEOUT: self.fake_create_timeout,
                 cluster.Cluster.DISCOVERY_URL: self.fake_discovery_url,
-                cluster.Cluster.MASTER_COUNT: self.fake_master_count,
+                cluster.Cluster.MASTER_COUNT: self.fake_main_count,
                 cluster.Cluster.NODE_COUNT: self.fake_node_count
             }, reality)
 
@@ -278,13 +278,13 @@ class TestMagnumCluster(common.HeatTestCase):
             self.fake_api_address,
             b._resolve_attribute(cluster.Cluster.API_ADDRESS_ATTR))
         self.assertEqual(
-            self.fake_master_count,
+            self.fake_main_count,
             b._resolve_attribute(cluster.Cluster.MASTER_COUNT_ATTR))
         self.assertEqual(
             self.fake_status,
             b._resolve_attribute(cluster.Cluster.STATUS_ATTR))
         self.assertEqual(
-            self.fake_master_addresses,
+            self.fake_main_addresses,
             b._resolve_attribute(cluster.Cluster.MASTER_ADDRESSES_ATTR))
         self.assertEqual(
             self.fake_node_addresses,

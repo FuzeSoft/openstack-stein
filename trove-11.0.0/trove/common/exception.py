@@ -321,9 +321,9 @@ class ReplicationNotSupported(TroveError):
                 "the '%(datastore)s' datastore.")
 
 
-class ReplicationSlaveAttachError(TroveError):
+class ReplicationSubordinateAttachError(TroveError):
 
-    message = _("Exception encountered attaching slave to new replica source.")
+    message = _("Exception encountered attaching subordinate to new replica source.")
 
 
 class TaskManagerError(TroveError):
@@ -543,7 +543,7 @@ class IncompatibleReplicationStrategy(TroveError):
 
 
 class InsufficientSpaceForReplica(TroveError):
-    message = _("The target instance has only %(slave_volume_size)sG free, "
+    message = _("The target instance has only %(subordinate_volume_size)sG free, "
                 "but the replication snapshot contains %(dataset_size)sG "
                 "of data.")
 
@@ -684,7 +684,7 @@ class LogAccessForbidden(Forbidden):
     message = _("You must be admin to %(action)s log '%(log)s'.")
 
 
-class SlaveOperationNotSupported(TroveError):
+class SubordinateOperationNotSupported(TroveError):
 
-    message = _("The '%(operation)s' operation is not supported for slaves in "
+    message = _("The '%(operation)s' operation is not supported for subordinates in "
                 "replication.")

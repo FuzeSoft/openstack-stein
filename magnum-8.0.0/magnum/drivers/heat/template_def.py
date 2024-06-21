@@ -224,8 +224,8 @@ class BaseTemplateDefinition(TemplateDefinition):
                            cluster_template_attr='https_proxy')
         self.add_parameter('no_proxy',
                            cluster_template_attr='no_proxy')
-        self.add_parameter('number_of_masters',
-                           cluster_attr='master_count')
+        self.add_parameter('number_of_mains',
+                           cluster_attr='main_count')
 
     @property
     def driver_module_path(self):
@@ -327,16 +327,16 @@ class BaseTemplateDefinition(TemplateDefinition):
 
     def get_discovery_url(self, cluster, cluster_template=None):
         if hasattr(cluster, 'discovery_url') and cluster.discovery_url:
-            if getattr(cluster, 'master_count', None) is not None:
+            if getattr(cluster, 'main_count', None) is not None:
                 self.validate_discovery_url(cluster.discovery_url,
-                                            cluster.master_count)
+                                            cluster.main_count)
             else:
                 self.validate_discovery_url(cluster.discovery_url, 1)
             discovery_url = cluster.discovery_url
         else:
             discovery_endpoint = (
                 CONF.cluster.etcd_discovery_service_endpoint_format %
-                {'size': cluster.master_count})
+                {'size': cluster.main_count})
             try:
                 proxies = self.get_proxies(discovery_endpoint,
                                            cluster_template)
@@ -363,13 +363,13 @@ class BaseTemplateDefinition(TemplateDefinition):
 
 
 def add_lb_env_file(env_files, cluster_template):
-    if cluster_template.master_lb_enabled:
+    if cluster_template.main_lb_enabled:
         if keystone.is_octavia_enabled():
-            env_files.append(COMMON_ENV_PATH + 'with_master_lb_octavia.yaml')
+            env_files.append(COMMON_ENV_PATH + 'with_main_lb_octavia.yaml')
         else:
-            env_files.append(COMMON_ENV_PATH + 'with_master_lb.yaml')
+            env_files.append(COMMON_ENV_PATH + 'with_main_lb.yaml')
     else:
-        env_files.append(COMMON_ENV_PATH + 'no_master_lb.yaml')
+        env_files.append(COMMON_ENV_PATH + 'no_main_lb.yaml')
 
 
 def add_volume_env_file(env_files, cluster):
@@ -388,17 +388,17 @@ def add_etcd_volume_env_file(env_files, cluster_template):
 
 def add_fip_env_file(env_files, cluster_template, cluster):
     lb_fip_enabled = cluster.labels.get(
-        "master_lb_floating_ip_enabled",
+        "main_lb_floating_ip_enabled",
         cluster_template.floating_ip_enabled
     )
-    master_lb_fip_enabled = strutils.bool_from_string(lb_fip_enabled)
+    main_lb_fip_enabled = strutils.bool_from_string(lb_fip_enabled)
 
     if cluster_template.floating_ip_enabled:
         env_files.append(COMMON_ENV_PATH + 'enable_floating_ip.yaml')
     else:
         env_files.append(COMMON_ENV_PATH + 'disable_floating_ip.yaml')
 
-    if cluster_template.master_lb_enabled and master_lb_fip_enabled:
+    if cluster_template.main_lb_enabled and main_lb_fip_enabled:
         env_files.append(COMMON_ENV_PATH + 'enable_lb_floating_ip.yaml')
     else:
         env_files.append(COMMON_ENV_PATH + 'disable_lb_floating_ip.yaml')

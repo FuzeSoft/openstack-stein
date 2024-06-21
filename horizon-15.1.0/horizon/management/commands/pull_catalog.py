@@ -19,11 +19,11 @@ from django.utils import translation
 import requests
 
 ZANATA_LOCALES_URL = ("https://translate.openstack.org/rest/project"
-                      "/horizon/version/master/locales")
+                      "/horizon/version/main/locales")
 DOMAINS = ['django', 'djangojs']
 MODULES = ['horizon', 'openstack_dashboard']
 PROJECT = 'horizon'
-BRANCH = 'master'
+BRANCH = 'main'
 POFILE = "{module}/locale/{locale}/LC_MESSAGES/{domain}.po"
 POFILE_URL = ("https://translate.openstack.org/rest/file/translation/{project}"
               "/{branch}/{language}/po?docId={module}%2Flocale%2F{domain}")
@@ -61,7 +61,7 @@ class Command(BaseCommand):
         parser.add_argument('-b', '--branch', type=str, default=BRANCH,
                             help=("The branch of the project to extract "
                                   "strings from e.g. 'horizon'. The default "
-                                  "is 'master'"))
+                                  "is 'main'"))
 
     def handle(self, *args, **options):
         for module in options['module']:

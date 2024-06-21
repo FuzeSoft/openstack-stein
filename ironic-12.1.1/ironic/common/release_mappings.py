@@ -23,7 +23,7 @@ from ironic.common.i18n import _
 # release.
 #
 # We support a rolling upgrade between adjacent named releases, as well as
-# between a release and master, so old, unsupported releases can be removed,
+# between a release and main, so old, unsupported releases can be removed,
 # together with the supporting code, which is typically found in an object's
 # make_compatible methods and RPC client code.
 
@@ -49,11 +49,11 @@ from ironic.common.i18n import _
 # see comments after L1128 of
 # https://review.openstack.org/#/c/408556/52/ironic/db/sqlalchemy/api.py.
 #
-# There should always be a 'master' entry that reflects the objects in the
-# master branch.
+# There should always be a 'main' entry that reflects the objects in the
+# main branch.
 #
-# Just before doing a release, copy the 'master' entry, and rename the first
-# 'master' entry to the (semver) version being released.
+# Just before doing a release, copy the 'main' entry, and rename the first
+# 'main' entry to the (semver) version being released.
 #
 # Just after doing a named release, delete any entries associated with the
 # oldest named release.
@@ -162,7 +162,7 @@ RELEASE_MAPPING = {
             'VolumeTarget': ['1.0'],
         }
     },
-    'master': {
+    'main': {
         'api': '1.56',
         'rpc': '1.48',
         'objects': {
@@ -187,7 +187,7 @@ RELEASE_MAPPING = {
 #            a stable/<release> branch), add a mapping for the new named
 #            release. This is needed; otherwise CI: a unit test (common.
 #            ReleaseMappingsTestCase.test_contains_current_release_entry())
-#            and grenade that tests old/new (new-release -> master) will fail.
+#            and grenade that tests old/new (new-release -> main) will fail.
 #
 #            Just after we do a new named release, delete the oldest named
 #            release (that we are no longer supporting for a rolling upgrade).
@@ -198,8 +198,8 @@ RELEASE_MAPPING = {
 RELEASE_MAPPING['rocky'] = RELEASE_MAPPING['11.1']
 RELEASE_MAPPING['stein'] = RELEASE_MAPPING['12.1']
 
-# List of available versions with named versions first; 'master' is excluded.
-RELEASE_VERSIONS = sorted(set(RELEASE_MAPPING) - {'master'}, reverse=True)
+# List of available versions with named versions first; 'main' is excluded.
+RELEASE_VERSIONS = sorted(set(RELEASE_MAPPING) - {'main'}, reverse=True)
 
 # List of available (version, description) tuples.
 RELEASE_VERSIONS_DESCS = [(v, _('"%s" release') % v) for v in RELEASE_VERSIONS]

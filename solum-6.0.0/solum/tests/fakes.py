@@ -75,7 +75,7 @@ class FakeApp(mock.Mock):
         self.deleted = False
         self.source = {
             'repository': 'http://github.com/example/a.git',
-            'revision': 'master',
+            'revision': 'main',
             'repo_token': 'test-repo-token',
             'private': False,
             'private_ssh_key': 'test-private-ssh-key'

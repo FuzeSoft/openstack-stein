@@ -185,7 +185,7 @@ class K8sMonitor(monitors.MonitorBase):
         2.  The data structure of health_status_reason
             As an attribute of the cluster, the health_status_reason have to
             use the field type from
-            oslo.versionedobjects/blob/master/oslo_versionedobjects/fields.py
+            oslo.versionedobjects/blob/main/oslo_versionedobjects/fields.py
 
         3.  How to get the health_status and health_status_reason?
             3.1 Call /healthz to get the API health status

@@ -25,8 +25,8 @@ bug_tag = ''
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = u'Cyborg Release Notes'
@@ -121,7 +121,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'CyborgReleaseNotes.tex',
+    (main_doc, 'CyborgReleaseNotes.tex',
      u'Cyborg Release Notes Documentation',
      u'Cyborg developers', 'manual'),
 ]
@@ -132,7 +132,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'CyborgReleaseNotes', u'Cyborg Release Notes Documentation',
+    (main_doc, 'CyborgReleaseNotes', u'Cyborg Release Notes Documentation',
      [author], 1)
 ]
 
@@ -143,7 +143,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'CyborgReleaseNotes', u'Cyborg Release Notes Documentation',
+    (main_doc, 'CyborgReleaseNotes', u'Cyborg Release Notes Documentation',
      author, 'CyborgReleaseNotes', 'One line description of project.',
      'Miscellaneous'),
 ]

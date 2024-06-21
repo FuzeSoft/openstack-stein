@@ -46,7 +46,7 @@ class Bay(resource.Resource):
         NAME, BAYMODEL, NODE_COUNT, MASTER_COUNT, DISCOVERY_URL,
         BAY_CREATE_TIMEOUT
     ) = (
-        'name', 'baymodel', 'node_count', 'master_count',
+        'name', 'baymodel', 'node_count', 'main_count',
         'discovery_url', 'bay_create_timeout'
     )
 
@@ -72,7 +72,7 @@ class Bay(resource.Resource):
         ),
         MASTER_COUNT: properties.Schema(
             properties.Schema.INTEGER,
-            _('The number of master nodes for this bay.'),
+            _('The number of main nodes for this bay.'),
             constraints=[constraints.Range(min=1)],
             update_allowed=True,
             default=1
@@ -99,7 +99,7 @@ class Bay(resource.Resource):
             'name': self.properties[self.NAME],
             'baymodel_id': self.properties[self.BAYMODEL],
             'node_count': self.properties[self.NODE_COUNT],
-            'master_count': self.properties[self.NODE_COUNT],
+            'main_count': self.properties[self.NODE_COUNT],
             'discovery_url': self.properties[self.DISCOVERY_URL],
             'bay_create_timeout': self.properties[self.BAY_CREATE_TIMEOUT]
         }

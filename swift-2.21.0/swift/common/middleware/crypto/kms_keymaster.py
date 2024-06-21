@@ -15,34 +15,34 @@
 from castellan import key_manager, options
 from castellan.common.credentials import keystone_password
 from oslo_config import cfg
-from swift.common.middleware.crypto.keymaster import BaseKeyMaster
+from swift.common.middleware.crypto.keymain import BaseKeyMain
 
 
-class KmsKeyMaster(BaseKeyMaster):
+class KmsKeyMain(BaseKeyMain):
     """Middleware for retrieving a encryption root secret from an external KMS.
 
     The middleware accesses the encryption root secret from an external key
     management system (KMS), e.g., a Barbican service, using Castellan. To be
     able to do so, the appropriate configuration options shall be set in the
     proxy-server.conf file, or in the configuration pointed to using the
-    keymaster_config_path configuration value in the proxy-server.conf file.
+    keymain_config_path configuration value in the proxy-server.conf file.
     """
-    log_route = 'kms_keymaster'
-    keymaster_opts = ('username', 'password', 'project_name',
+    log_route = 'kms_keymain'
+    keymain_opts = ('username', 'password', 'project_name',
                       'user_domain_name', 'project_domain_name',
                       'user_id', 'user_domain_id', 'trust_id',
                       'domain_id', 'domain_name', 'project_id',
                       'project_domain_id', 'reauthenticate',
                       'auth_endpoint', 'api_class', 'key_id*',
                       'active_root_secret_id')
-    keymaster_conf_section = 'kms_keymaster'
+    keymain_conf_section = 'kms_keymain'
 
     def _get_root_secret(self, conf):
         """
         Retrieve the root encryption secret from an external key management
         system using Castellan.
 
-        :param conf: the keymaster config section from proxy-server.conf
+        :param conf: the keymain config section from proxy-server.conf
         :type conf: dict
 
         :return: the encryption root secret binary bytes
@@ -104,7 +104,7 @@ def filter_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
 
-    def kms_keymaster_filter(app):
-        return KmsKeyMaster(app, conf)
+    def kms_keymain_filter(app):
+        return KmsKeyMain(app, conf)
 
-    return kms_keymaster_filter
+    return kms_keymain_filter

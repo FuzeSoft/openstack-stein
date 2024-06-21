@@ -50,7 +50,7 @@ class ClusterResizeRequest(base.APIBase):
     """Instance ID list for nodes to be removed."""
 
     nodegroup = wtypes.StringType(min_length=1, max_length=255)
-    """Group of nodes to be uprgaded (master or node)"""
+    """Group of nodes to be uprgaded (main or node)"""
 
 
 class ActionsController(base.Controller):

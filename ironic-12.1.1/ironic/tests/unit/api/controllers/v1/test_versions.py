@@ -82,7 +82,7 @@ class TestMaxVersionString(base.TestCase):
 
     def test_max_version_not_pinned_in_release_mappings(self):
         CONF.set_override('pin_release_version', None)
-        self.assertEqual(release_mappings.RELEASE_MAPPING['master']['api'],
+        self.assertEqual(release_mappings.RELEASE_MAPPING['main']['api'],
                          versions.max_version_string())
 
     @mock.patch('ironic.common.release_mappings.RELEASE_MAPPING',

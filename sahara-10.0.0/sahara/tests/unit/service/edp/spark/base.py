@@ -31,15 +31,15 @@ class TestSpark(base.SaharaTestCase):
 
         # These variables are initialized in subclasses because its values
         # depend on plugin
-        self.master_host = None
+        self.main_host = None
         self.engine_class = None
         self.spark_user = None
         self.spark_submit = None
-        self.master = None
+        self.main = None
         self.deploy_mode = None
 
-        self.master_port = 7077
-        self.master_inst = "6789"
+        self.main_port = 7077
+        self.main_inst = "6789"
         self.spark_pid = "12345"
         self.spark_home = "/opt/spark"
         self.workflow_dir = "/wfdir"
@@ -376,16 +376,16 @@ class TestSpark(base.SaharaTestCase):
         self.assertEqual(["/somedir/" + n for n in main_names + lib_names],
                          paths)
 
-    def _make_master_instance(self, return_code=0):
-        master = mock.Mock()
-        master.execute_command.return_value = (return_code, self.spark_pid)
-        master.get_python_version.return_value = 'python'
-        master.hostname.return_value = self.master_host
-        master.id = self.master_inst
-        return master
+    def _make_main_instance(self, return_code=0):
+        main = mock.Mock()
+        main.execute_command.return_value = (return_code, self.spark_pid)
+        main.get_python_version.return_value = 'python'
+        main.hostname.return_value = self.main_host
+        main.id = self.main_inst
+        return main
 
     def _config_values(self, *key):
-        return {("Spark", "Master port", "cluster"): self.master_port,
+        return {("Spark", "Main port", "cluster"): self.main_port,
                 ("Spark", "Spark home", "cluster"): self.spark_home,
                 ("Spark", "Executor extra classpath",
                  "cluster"): self.driver_cp}[key]
@@ -398,7 +398,7 @@ class TestSpark(base.SaharaTestCase):
     @mock.patch('sahara.plugins.utils.get_instance')
     @mock.patch('sahara.conductor.API.job_get')
     @mock.patch('sahara.context.ctx', return_value="ctx")
-    def _setup_run_job(self, master_instance, job_configs, files,
+    def _setup_run_job(self, main_instance, job_configs, files,
                        ctx, job_get, get_instance, create_workflow_dir,
                        get_config_value, get_remote, job_exec_get,
                        job_exec_update):
@@ -421,18 +421,18 @@ class TestSpark(base.SaharaTestCase):
 
         create_workflow_dir.return_value = self.workflow_dir
 
-        # This is to mock "with remote.get_remote(master) as r" in run_job
+        # This is to mock "with remote.get_remote(main) as r" in run_job
         get_remote.return_value.__enter__ = mock.Mock(
-            return_value=master_instance)
-        get_instance.return_value = master_instance
+            return_value=main_instance)
+        get_instance.return_value = main_instance
 
         eng = self.engine_class("cluster")
         eng._upload_job_files = mock.Mock()
         eng._upload_job_files.side_effect = _upload_job_files
         status = eng.run_job(job_exec)
 
-        # Check that we launch on the master node
-        get_instance.assert_called_with("cluster", self.master_host)
+        # Check that we launch on the main node
+        get_instance.assert_called_with("cluster", self.main_host)
 
         return status
 
@@ -446,14 +446,14 @@ class TestSpark(base.SaharaTestCase):
                           "jar1.jar",
                           "jar2.jar"]}
 
-        # The object representing the spark master node
+        # The object representing the spark main node
         # The spark-submit command will be run on this instance
-        master_instance = self._make_master_instance(return_code=1)
+        main_instance = self._make_main_instance(return_code=1)
 
         # If execute_command returns an error we should get a raise
         self.assertRaises(ex.EDPError,
                           self._setup_run_job,
-                          master_instance, job_configs, files)
+                          main_instance, job_configs, files)
 
     def test_run_job_extra_jars_args(self):
         job_configs = {
@@ -465,27 +465,27 @@ class TestSpark(base.SaharaTestCase):
                           "jar1.jar",
                           "jar2.jar"]}
 
-        # The object representing the spark master node
+        # The object representing the spark main node
         # The spark-submit command will be run on this instance
-        master_instance = self._make_master_instance()
-        status = self._setup_run_job(master_instance, job_configs, files)
+        main_instance = self._make_main_instance()
+        status = self._setup_run_job(main_instance, job_configs, files)
 
         # Check the command
-        master_instance.execute_command.assert_called_with(
+        main_instance.execute_command.assert_called_with(
             'cd %(workflow_dir)s; '
             './launch_command %(spark_user)s%(spark_submit)s '
             '--class org.me.myclass --jars jar1.jar,jar2.jar '
-            '--master %(master)s '
+            '--main %(main)s '
             '--deploy-mode %(deploy_mode)s '
             'app.jar input_arg output_arg '
             '> /dev/null 2>&1 & echo $!' % {"workflow_dir": self.workflow_dir,
                                             "spark_user": self.spark_user,
                                             "spark_submit": self.spark_submit,
-                                            "master": self.master,
+                                            "main": self.main,
                                             "deploy_mode": self.deploy_mode})
 
         # Check result here
-        self.assertEqual(("%s@%s" % (self.spark_pid, self.master_inst),
+        self.assertEqual(("%s@%s" % (self.spark_pid, self.main_inst),
                           edp.JOB_STATUS_RUNNING,
                           {"spark-path": self.workflow_dir}), status)
 
@@ -497,27 +497,27 @@ class TestSpark(base.SaharaTestCase):
 
         files = {'jars': ["app.jar"]}
 
-        # The object representing the spark master node
+        # The object representing the spark main node
         # The spark-submit command will be run on this instance
-        master_instance = self._make_master_instance()
-        status = self._setup_run_job(master_instance, job_configs, files)
+        main_instance = self._make_main_instance()
+        status = self._setup_run_job(main_instance, job_configs, files)
 
         # Check the command
-        master_instance.execute_command.assert_called_with(
+        main_instance.execute_command.assert_called_with(
             'cd %(workflow_dir)s; '
             './launch_command %(spark_user)s%(spark_submit)s '
             '--class org.me.myclass '
-            '--master %(master)s '
+            '--main %(main)s '
             '--deploy-mode %(deploy_mode)s '
             'app.jar input_arg output_arg '
             '> /dev/null 2>&1 & echo $!' % {"workflow_dir": self.workflow_dir,
                                             "spark_user": self.spark_user,
                                             "spark_submit": self.spark_submit,
-                                            "master": self.master,
+                                            "main": self.main,
                                             "deploy_mode": self.deploy_mode})
 
         # Check result here
-        self.assertEqual(("%s@%s" % (self.spark_pid, self.master_inst),
+        self.assertEqual(("%s@%s" % (self.spark_pid, self.main_inst),
                           edp.JOB_STATUS_RUNNING,
                           {"spark-path": self.workflow_dir}), status)
 
@@ -528,27 +528,27 @@ class TestSpark(base.SaharaTestCase):
 
         files = {'jars': ["app.jar"]}
 
-        # The object representing the spark master node
+        # The object representing the spark main node
         # The spark-submit command will be run on this instance
-        master_instance = self._make_master_instance()
-        status = self._setup_run_job(master_instance, job_configs, files)
+        main_instance = self._make_main_instance()
+        status = self._setup_run_job(main_instance, job_configs, files)
 
         # Check the command
-        master_instance.execute_command.assert_called_with(
+        main_instance.execute_command.assert_called_with(
             'cd %(workflow_dir)s; '
             './launch_command %(spark_user)s%(spark_submit)s '
             '--class org.me.myclass '
-            '--master %(master)s '
+            '--main %(main)s '
             '--deploy-mode %(deploy_mode)s '
             'app.jar '
             '> /dev/null 2>&1 & echo $!' % {"workflow_dir": self.workflow_dir,
                                             "spark_user": self.spark_user,
                                             "spark_submit": self.spark_submit,
-                                            "master": self.master,
+                                            "main": self.main,
                                             "deploy_mode": self.deploy_mode})
 
         # Check result here
-        self.assertEqual(("%s@%s" % (self.spark_pid, self.master_inst),
+        self.assertEqual(("%s@%s" % (self.spark_pid, self.main_inst),
                           edp.JOB_STATUS_RUNNING,
                           {"spark-path": self.workflow_dir}), status)
 
@@ -564,31 +564,31 @@ class TestSpark(base.SaharaTestCase):
                           "jar2.jar"],
                  'bltns': ["wrapper.jar"]}
 
-        # The object representing the spark master node
+        # The object representing the spark main node
         # The spark-submit command will be run on this instance
-        master_instance = self._make_master_instance()
-        status = self._setup_run_job(master_instance, job_configs, files)
+        main_instance = self._make_main_instance()
+        status = self._setup_run_job(main_instance, job_configs, files)
 
         # Check the command
-        master_instance.execute_command.assert_called_with(
+        main_instance.execute_command.assert_called_with(
             'cd %(workflow_dir)s; '
             './launch_command %(spark_user)s%(spark_submit)s '
             '--driver-class-path %(driver_cp)s '
             '--files spark.xml '
             '--class org.openstack.sahara.edp.SparkWrapper '
             '--jars wrapper.jar,jar1.jar,jar2.jar '
-            '--master %(master)s '
+            '--main %(main)s '
             '--deploy-mode %(deploy_mode)s '
             'app.jar spark.xml org.me.myclass input_arg output_arg '
             '> /dev/null 2>&1 & echo $!' % {"workflow_dir": self.workflow_dir,
                                             "spark_user": self.spark_user,
                                             "spark_submit": self.spark_submit,
                                             "driver_cp": self.driver_cp,
-                                            "master": self.master,
+                                            "main": self.main,
                                             "deploy_mode": self.deploy_mode})
 
         # Check result here
-        self.assertEqual(("%s@%s" % (self.spark_pid, self.master_inst),
+        self.assertEqual(("%s@%s" % (self.spark_pid, self.main_inst),
                           edp.JOB_STATUS_RUNNING,
                           {"spark-path": self.workflow_dir}), status)
 
@@ -602,31 +602,31 @@ class TestSpark(base.SaharaTestCase):
         files = {'jars': ["app.jar"],
                  'bltns': ["wrapper.jar"]}
 
-        # The object representing the spark master node
+        # The object representing the spark main node
         # The spark-submit command will be run on this instance
-        master_instance = self._make_master_instance()
-        status = self._setup_run_job(master_instance, job_configs, files)
+        main_instance = self._make_main_instance()
+        status = self._setup_run_job(main_instance, job_configs, files)
 
         # Check the command
-        master_instance.execute_command.assert_called_with(
+        main_instance.execute_command.assert_called_with(
             'cd %(workflow_dir)s; '
             './launch_command %(spark_user)s%(spark_submit)s '
             '--driver-class-path %(driver_cp)s '
             '--files spark.xml '
             '--class org.openstack.sahara.edp.SparkWrapper '
             '--jars wrapper.jar '
-            '--master %(master)s '
+            '--main %(main)s '
             '--deploy-mode %(deploy_mode)s '
             'app.jar spark.xml org.me.myclass input_arg output_arg '
             '> /dev/null 2>&1 & echo $!' % {"workflow_dir": self.workflow_dir,
                                             "spark_user": self.spark_user,
                                             "spark_submit": self.spark_submit,
                                             "driver_cp": self.driver_cp,
-                                            "master": self.master,
+                                            "main": self.main,
                                             "deploy_mode": self.deploy_mode})
 
         # Check result here
-        self.assertEqual(("%s@%s" % (self.spark_pid, self.master_inst),
+        self.assertEqual(("%s@%s" % (self.spark_pid, self.main_inst),
                           edp.JOB_STATUS_RUNNING,
                           {"spark-path": self.workflow_dir}), status)
 
@@ -639,31 +639,31 @@ class TestSpark(base.SaharaTestCase):
         files = {'jars': ["app.jar"],
                  'bltns': ["wrapper.jar"]}
 
-        # The object representing the spark master node
+        # The object representing the spark main node
         # The spark-submit command will be run on this instance
-        master_instance = self._make_master_instance()
-        status = self._setup_run_job(master_instance, job_configs, files)
+        main_instance = self._make_main_instance()
+        status = self._setup_run_job(main_instance, job_configs, files)
 
         # Check the command
-        master_instance.execute_command.assert_called_with(
+        main_instance.execute_command.assert_called_with(
             'cd %(workflow_dir)s; '
             './launch_command %(spark_user)s%(spark_submit)s '
             '--driver-class-path %(driver_cp)s '
             '--files spark.xml '
             '--class org.openstack.sahara.edp.SparkWrapper '
             '--jars wrapper.jar '
-            '--master %(master)s '
+            '--main %(main)s '
             '--deploy-mode %(deploy_mode)s '
             'app.jar spark.xml org.me.myclass '
             '> /dev/null 2>&1 & echo $!' % {"workflow_dir": self.workflow_dir,
                                             "spark_user": self.spark_user,
                                             "spark_submit": self.spark_submit,
                                             "driver_cp": self.driver_cp,
-                                            "master": self.master,
+                                            "main": self.main,
                                             "deploy_mode": self.deploy_mode})
 
         # Check result here
-        self.assertEqual(("%s@%s" % (self.spark_pid, self.master_inst),
+        self.assertEqual(("%s@%s" % (self.spark_pid, self.main_inst),
                           edp.JOB_STATUS_RUNNING,
                           {"spark-path": self.workflow_dir}), status)
 
@@ -681,8 +681,8 @@ class TestSpark(base.SaharaTestCase):
         data_source.id = 'id'
         resolver.return_value = ([data_source], job_configs)
 
-        master_instance = self._make_master_instance()
-        self._setup_run_job(master_instance, job_configs, files)
+        main_instance = self._make_main_instance()
+        self._setup_run_job(main_instance, job_configs, files)
 
         prepare.assert_called_once()
 
@@ -701,20 +701,20 @@ class TestSpark(base.SaharaTestCase):
         data_source.id = 'id'
         resolver.return_value = ([data_source], job_configs)
 
-        master_instance = self._make_master_instance()
-        self._setup_run_job(master_instance, job_configs, files)
+        main_instance = self._make_main_instance()
+        self._setup_run_job(main_instance, job_configs, files)
 
         # check that overridden value was applied
-        master_instance.execute_command.assert_called_with(
+        main_instance.execute_command.assert_called_with(
             'cd %(workflow_dir)s; '
             './launch_command %(spark_user)s%(spark_submit)s '
             '--driver-class-path my-classpath.jar '
             '--class org.me.myclass '
-            '--master %(master)s '
+            '--main %(main)s '
             '--deploy-mode %(deploy_mode)s '
             'app.jar '
             '> /dev/null 2>&1 & echo $!' % {"workflow_dir": self.workflow_dir,
                                             "spark_user": self.spark_user,
                                             "spark_submit": self.spark_submit,
-                                            "master": self.master,
+                                            "main": self.main,
                                             "deploy_mode": self.deploy_mode})

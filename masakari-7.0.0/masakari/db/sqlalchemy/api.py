@@ -67,14 +67,14 @@ def configure(conf):
     main_context_manager.configure(**_get_db_conf(conf.database))
 
 
-def get_engine(use_slave=False, context=None):
+def get_engine(use_subordinate=False, context=None):
     """Get a database engine object.
 
-    :param use_slave: Whether to use the slave connection
+    :param use_subordinate: Whether to use the subordinate connection
     :param context: The request context that can contain a context manager
     """
     ctxt_mgr = _context_manager_from_context(context) or main_context_manager
-    return ctxt_mgr.get_legacy_facade().get_engine(use_slave=use_slave)
+    return ctxt_mgr.get_legacy_facade().get_engine(use_subordinate=use_subordinate)
 
 
 def create_context_manager(connection=None):

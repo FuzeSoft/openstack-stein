@@ -59,12 +59,12 @@ mock_conf = RoObject(**{
     ),
     'pool_target:1588652b-50e7-46b9-b688-a9bad40a873e': RoObject(
         type='t1',
-        masters=[],
+        mains=[],
         options=dict(a='1', b='2'),
     ),
     'pool_target:2588652b-50e7-46b9-b688-a9bad40a873e': RoObject(
         type='t2',
-        masters=['1.1.1.1:11'],
+        mains=['1.1.1.1:11'],
         options={},
     ),
 })
@@ -98,12 +98,12 @@ class poolTest(oslotest.base.BaseTestCase):
                                      ('id', '269ca3fc-5924-4a44-8c1f-7efbe52fbd59'),  # noqa
                                      ('port', 456)]]),
                     ('targets', [[('id', '1588652b-50e7-46b9-b688-a9bad40a873e'),  # noqa
-                                 ('masters', []),
+                                 ('mains', []),
                                  ('options', [[('key', 'a'), ('value', '1')],
                                               [('key', 'b'), ('value', '2')]]),
                                   ('type', 't1')],
                                 [('id', '2588652b-50e7-46b9-b688-a9bad40a873e'),  # noqa
-                                 ('masters', [[('host', '1.1.1.1'),
+                                 ('mains', [[('host', '1.1.1.1'),
                                                ('port', 11)]]),
                                  ('options', []),
                                  ('type', 't2')]])]

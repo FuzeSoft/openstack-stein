@@ -87,8 +87,8 @@ class Bay(base.APIBase):
     node_count = wsme.wsattr(wtypes.IntegerType(minimum=1), default=1)
     """The node count for this bay. Default to 1 if not set"""
 
-    master_count = wsme.wsattr(wtypes.IntegerType(minimum=1), default=1)
-    """The number of master nodes for this bay. Default to 1 if not set"""
+    main_count = wsme.wsattr(wtypes.IntegerType(minimum=1), default=1)
+    """The number of main nodes for this bay. Default to 1 if not set"""
 
     docker_volume_size = wtypes.IntegerType(minimum=1)
     """The size in GB of the docker volume"""
@@ -99,8 +99,8 @@ class Bay(base.APIBase):
                                                           float))
     """One or more key/value pairs"""
 
-    master_flavor_id = wtypes.StringType(min_length=1, max_length=255)
-    """The master flavor of this Bay"""
+    main_flavor_id = wtypes.StringType(min_length=1, max_length=255)
+    """The main flavor of this Bay"""
 
     flavor_id = wtypes.StringType(min_length=1, max_length=255)
     """The flavor of this Bay"""
@@ -124,7 +124,7 @@ class Bay(base.APIBase):
     """Url used for bay node discovery"""
 
     api_address = wsme.wsattr(wtypes.text, readonly=True)
-    """Api address of cluster master node"""
+    """Api address of cluster main node"""
 
     coe_version = wsme.wsattr(wtypes.text, readonly=True)
     """Version of the COE software currently running in this cluster.
@@ -134,10 +134,10 @@ class Bay(base.APIBase):
     """Version of the container software. Example: docker version."""
 
     node_addresses = wsme.wsattr([wtypes.text], readonly=True)
-    """IP addresses of cluster slave nodes"""
+    """IP addresses of cluster subordinate nodes"""
 
-    master_addresses = wsme.wsattr([wtypes.text], readonly=True)
-    """IP addresses of cluster master nodes"""
+    main_addresses = wsme.wsattr([wtypes.text], readonly=True)
+    """IP addresses of cluster main nodes"""
 
     bay_faults = wsme.wsattr(wtypes.DictType(wtypes.text, wtypes.text))
     """Fault info collected from the heat resources of this bay"""
@@ -188,9 +188,9 @@ class Bay(base.APIBase):
         if not expand:
             bay.unset_fields_except(['uuid', 'name', 'baymodel_id',
                                      'docker_volume_size', 'labels',
-                                     'master_flavor_id', 'flavor_id',
+                                     'main_flavor_id', 'flavor_id',
                                      'node_count', 'status',
-                                     'bay_create_timeout', 'master_count',
+                                     'bay_create_timeout', 'main_count',
                                      'stack_id'])
 
         bay.links = [link.Link.make_link('self', url,
@@ -211,10 +211,10 @@ class Bay(base.APIBase):
                      name='example',
                      baymodel_id='4a96ac4b-2447-43f1-8ca6-9fd6f36d146d',
                      node_count=2,
-                     master_count=1,
+                     main_count=1,
                      docker_volume_size=1,
                      labels={},
-                     master_flavor_id=None,
+                     main_flavor_id=None,
                      flavor_id=None,
                      bay_create_timeout=15,
                      stack_id='49dc23f5-ffc9-40c3-9d34-7be7f9e34d63',
@@ -253,7 +253,7 @@ class BayPatchType(types.JsonPatchType):
     @staticmethod
     def internal_attrs():
         internal_attrs = ['/api_address', '/node_addresses',
-                          '/master_addresses', '/stack_id',
+                          '/main_addresses', '/stack_id',
                           '/ca_cert_ref', '/magnum_cert_ref',
                           '/trust_id', '/trustee_user_name',
                           '/trustee_password', '/trustee_user_id']
@@ -445,9 +445,9 @@ class BaysController(base.Controller):
         if bay.labels is None:
             bay.labels = baymodel.labels
 
-        # If master_flavor_id is not present, use baymodel value
-        if bay.master_flavor_id == wtypes.Unset or not bay.master_flavor_id:
-            bay.master_flavor_id = baymodel.master_flavor_id
+        # If main_flavor_id is not present, use baymodel value
+        if bay.main_flavor_id == wtypes.Unset or not bay.main_flavor_id:
+            bay.main_flavor_id = baymodel.main_flavor_id
 
         # If flavor_id is not present, use baymodel value
         if bay.flavor_id == wtypes.Unset or not bay.flavor_id:
@@ -457,7 +457,7 @@ class BaysController(base.Controller):
         bay_dict['keypair'] = baymodel.keypair_id
         attr_validator.validate_os_resources(context, baymodel.as_dict(),
                                              bay_dict)
-        attr_validator.validate_master_count(bay.as_dict(), baymodel.as_dict())
+        attr_validator.validate_main_count(bay.as_dict(), baymodel.as_dict())
 
         bay_dict['project_id'] = context.project_id
         bay_dict['user_id'] = context.user_id

@@ -58,7 +58,7 @@ class Zone(base.DesignateObject, base.DictObjectMixin,
         'pool_id': fields.UUIDFields(nullable=True, read_only=False),
         'recordsets': fields.ObjectField('RecordSetList', nullable=True),
         'attributes': fields.ObjectField('ZoneAttributeList', nullable=True),
-        'masters': fields.ObjectField('ZoneMasterList', nullable=True),
+        'mains': fields.ObjectField('ZoneMainList', nullable=True),
         'type': fields.EnumField(nullable=True,
                                  valid_values=['SECONDARY', 'PRIMARY'],
                                  read_only=False
@@ -71,11 +71,11 @@ class Zone(base.DesignateObject, base.DictObjectMixin,
         'id', 'type', 'name', 'pool_id', 'serial', 'action', 'status'
     ]
 
-    def get_master_by_ip(self, host):
+    def get_main_by_ip(self, host):
         """
-        Utility to get the master by it's ip for this zone.
+        Utility to get the main by it's ip for this zone.
         """
-        for srv in self.masters:
+        for srv in self.mains:
             srv_host, _ = utils.split_host_port(srv.to_data())
             if host == srv_host:
                 return srv
@@ -94,12 +94,12 @@ class Zone(base.DesignateObject, base.DictObjectMixin,
         errors = ValidationErrorList()
 
         if self.type == 'PRIMARY':
-            if self.obj_attr_is_set('masters') and len(self.masters) != 0:
+            if self.obj_attr_is_set('mains') and len(self.mains) != 0:
                 e = ValidationError()
                 e.path = ['type']
                 e.validator = 'maxItems'
-                e.validator_value = ['masters']
-                e.message = "'masters' has more items than allowed"
+                e.validator_value = ['mains']
+                e.message = "'mains' has more items than allowed"
                 errors.append(e)
             if self.email is None:
                 e = ValidationError()
@@ -112,12 +112,12 @@ class Zone(base.DesignateObject, base.DictObjectMixin,
 
         try:
             if self.type == 'SECONDARY':
-                if self.masters is None or len(self.masters) == 0:
+                if self.mains is None or len(self.mains) == 0:
                     e = ValidationError()
                     e.path = ['type']
                     e.validator = 'required'
-                    e.validator_value = ['masters']
-                    e.message = "'masters' is a required property"
+                    e.validator_value = ['mains']
+                    e.message = "'mains' is a required property"
                     errors.append(e)
 
                 for i in ['email', 'ttl']:

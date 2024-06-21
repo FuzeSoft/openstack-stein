@@ -28,7 +28,7 @@ CONF = cfg.CONF
 def _get_db_conf(conf_group, connection=None):
     return dict(
         connection=connection or conf_group.connection,
-        slave_connection=conf_group.slave_connection,
+        subordinate_connection=conf_group.subordinate_connection,
         sqlite_fk=False,
         __autocommit=True,
         expire_on_commit=False,
@@ -55,14 +55,14 @@ def create_context_manager(connection=None):
     return ctxt_mgr
 
 
-def get_engine(use_slave=False, connection=None):
+def get_engine(use_subordinate=False, connection=None):
     """Get a database engine object.
 
-    :param use_slave: Whether to use the slave connection
+    :param use_subordinate: Whether to use the subordinate connection
     :param connection: The database connection string
     """
     ctxt_mgr = create_context_manager(connection=connection)
-    if use_slave:
+    if use_subordinate:
         return ctxt_mgr.reader.get_engine()
     return ctxt_mgr.writer.get_engine()
 

@@ -43,12 +43,12 @@ class ClusterTemplate(resource.Resource):
         NO_PROXY, LABELS, TLS_DISABLED, PUBLIC, REGISTRY_ENABLED,
         SERVER_TYPE, MASTER_LB_ENABLED, FLOATING_IP_ENABLED
     ) = (
-        'name', 'image', 'flavor', 'master_flavor', 'keypair',
+        'name', 'image', 'flavor', 'main_flavor', 'keypair',
         'external_network', 'fixed_network', 'fixed_subnet', 'dns_nameserver',
         'docker_volume_size', 'docker_storage_driver', 'coe',
         'network_driver', 'volume_driver', 'http_proxy', 'https_proxy',
         'no_proxy', 'labels', 'tls_disabled', 'public', 'registry_enabled',
-        'server_type', 'master_lb_enabled', 'floating_ip_enabled'
+        'server_type', 'main_lb_enabled', 'floating_ip_enabled'
     )
 
     # Change it when magnum supports more function in the future.
@@ -79,7 +79,7 @@ class ClusterTemplate(resource.Resource):
         MASTER_FLAVOR: properties.Schema(
             properties.Schema.STRING,
             _('The nova flavor name or UUID to use when launching the '
-              'master node of the cluster.'),
+              'main node of the cluster.'),
             constraints=[
                 constraints.CustomConstraint('nova.flavor')
             ]
@@ -207,7 +207,7 @@ class ClusterTemplate(resource.Resource):
         MASTER_LB_ENABLED: properties.Schema(
             properties.Schema.BOOLEAN,
             _('Indicates whether created clusters should have a load '
-              'balancer for master nodes or not.'),
+              'balancer for main nodes or not.'),
             default=True
         ),
         FLOATING_IP_ENABLED: properties.Schema(

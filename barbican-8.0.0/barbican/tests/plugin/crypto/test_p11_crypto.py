@@ -274,7 +274,7 @@ class WhenTestingP11CryptoPlugin(utils.BaseTestCase):
     def test_missing_mkek(self):
         self.pkcs11.get_key_handle.return_value = None
         self.assertRaises(ex.P11CryptoKeyHandleException,
-                          self.plugin._get_master_key,
+                          self.plugin._get_main_key,
                           self.plugin.mkek_key_type,
                           'bad_key_label')
 

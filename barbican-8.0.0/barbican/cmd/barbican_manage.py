@@ -183,7 +183,7 @@ class HSMCommands(object):
     @args('--passphrase', metavar='<passphrase>', default=None, required=True,
           help='Password to login to PKCS11 session')
     @args('--label', '-L', metavar='<label>', default='primarymkek',
-          help='The label of the Master Key Encrypt Key')
+          help='The label of the Main Key Encrypt Key')
     @args('--hmac-wrap-mechanism', metavar='<hmac key wrap mechanism>',
           dest='hmacwrap', default='CKM_SHA256_HMAC',
           help='HMAC Key wrap mechanism, default is CKM_SHA256_HMAC')
@@ -209,9 +209,9 @@ class HSMCommands(object):
     @args('--passphrase', metavar='<passphrase>', default=None, required=True,
           help='Password to login to PKCS11 session')
     @args('--label', '-L', metavar='<label>', default='primarymkek',
-          help='The label of the Master Key Encrypt Key')
+          help='The label of the Main Key Encrypt Key')
     @args('--length', '-l', metavar='<length>', default=32,
-          help='The length in bytes of the Master Key Encryption Key'
+          help='The length in bytes of the Main Key Encryption Key'
                ' (default is 32)')
     @args('--hmac-wrap-mechanism', metavar='<hmac key wrap mechanism>',
           dest='hmacwrap', default='CKM_SHA256_HMAC',
@@ -225,7 +225,7 @@ class HSMCommands(object):
         self._verify_label_does_not_exist(CKK_AES, str(label), self.session)
         self.pkcs11.generate_key(CKK_AES, int(length), CKM_AES_KEY_GEN,
                                  self.session, str(label),
-                                 encrypt=True, wrap=True, master_key=True)
+                                 encrypt=True, wrap=True, main_key=True)
         self.pkcs11.return_session(self.session)
         print("MKEK successfully generated!")
 
@@ -240,7 +240,7 @@ class HSMCommands(object):
     @args('--passphrase', metavar='<passphrase>', default=None, required=True,
           help='Password to login to PKCS11 session')
     @args('--label', '-L', metavar='<label>', default='primarymkek',
-          help='The label of the Master HMAC key')
+          help='The label of the Main HMAC key')
     @args('--key-type', '-t', metavar='<key type>', dest='keytype',
           default='CKK_AES', help='The HMAC Key Type (e.g. CKK_AES)')
     @args('--hmac-wrap-mechanism', metavar='<hmac key wrap mechanism>',
@@ -268,11 +268,11 @@ class HSMCommands(object):
     @args('--passphrase', metavar='<passphrase>', default=None, required=True,
           help='Password to login to PKCS11 session')
     @args('--label', '-L', metavar='<label>', default='primarymkek',
-          help='The label of the Master HMAC Key')
+          help='The label of the Main HMAC Key')
     @args('--key-type', '-t', metavar='<key type>', dest='keytype',
           default='CKK_AES', help='The HMAC Key Type (e.g. CKK_AES)')
     @args('--length', '-l', metavar='<length>', default=32,
-          help='The length in bytes of the Master HMAC Key (default is 32)')
+          help='The length in bytes of the Main HMAC Key (default is 32)')
     @args('--mechanism', '-m', metavar='<mechanism>',
           default='CKM_AES_KEY_GEN', help='The HMAC Key Generation mechanism')
     @args('--hmac-wrap-mechanism', metavar='<hmac key wrap mechanism>',
@@ -286,7 +286,7 @@ class HSMCommands(object):
                                           self.session)
         self.pkcs11.generate_key(str(keytype), int(length), str(mechanism),
                                  self.session, str(label),
-                                 sign=True, master_key=True)
+                                 sign=True, main_key=True)
         self.pkcs11.return_session(self.session)
         print("HMAC successfully generated!")
 

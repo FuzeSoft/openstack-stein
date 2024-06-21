@@ -21,12 +21,12 @@ from designate.objects import fields
 
 
 @base.DesignateRegistry.register
-class ZoneMaster(base.DesignateObject,
+class ZoneMain(base.DesignateObject,
                  base.DictObjectMixin,
                  base.PersistentObjectMixin,
                  base.SoftDeleteObjectMixin):
     def __init__(self, *args, **kwargs):
-        super(ZoneMaster, self).__init__(*args, **kwargs)
+        super(ZoneMain, self).__init__(*args, **kwargs)
 
     fields = {
         'zone_id': fields.UUIDFields(nullable=True),
@@ -45,10 +45,10 @@ class ZoneMaster(base.DesignateObject,
 
 
 @base.DesignateRegistry.register
-class ZoneMasterList(base.ListObjectMixin, base.DesignateObject):
-    LIST_ITEM_TYPE = ZoneMaster
+class ZoneMainList(base.ListObjectMixin, base.DesignateObject):
+    LIST_ITEM_TYPE = ZoneMain
     fields = {
-        'objects': fields.ListOfObjectsField('ZoneMaster'),
+        'objects': fields.ListOfObjectsField('ZoneMain'),
     }
 
     @classmethod
@@ -75,7 +75,7 @@ class ZoneMasterList(base.ListObjectMixin, base.DesignateObject):
         return list_
 
     def to_data(self):
-        zone_master_list = []
+        zone_main_list = []
         for item in self.objects:
-            zone_master_list.append(item.to_data())
-        return zone_master_list
+            zone_main_list.append(item.to_data())
+        return zone_main_list

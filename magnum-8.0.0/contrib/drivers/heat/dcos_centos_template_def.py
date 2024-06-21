@@ -36,14 +36,14 @@ class ServerAddressOutputMapping(template_def.OutputMapping):
               self).set_output(stack, cluster_template, cluster)
 
 
-class MasterAddressOutputMapping(ServerAddressOutputMapping):
-    public_ip_output_key = 'dcos_master'
-    private_ip_output_key = 'dcos_master_private'
+class MainAddressOutputMapping(ServerAddressOutputMapping):
+    public_ip_output_key = 'dcos_main'
+    private_ip_output_key = 'dcos_main_private'
 
 
 class NodeAddressOutputMapping(ServerAddressOutputMapping):
-    public_ip_output_key = 'dcos_slaves'
-    private_ip_output_key = 'dcos_slaves_private'
+    public_ip_output_key = 'dcos_subordinates'
+    private_ip_output_key = 'dcos_subordinates_private'
 
 
 class DcosCentosTemplateDefinition(template_def.BaseTemplateDefinition):
@@ -54,11 +54,11 @@ class DcosCentosTemplateDefinition(template_def.BaseTemplateDefinition):
         self.add_parameter('external_network',
                            cluster_template_attr='external_network_id',
                            required=True)
-        self.add_parameter('number_of_slaves',
+        self.add_parameter('number_of_subordinates',
                            cluster_attr='node_count')
-        self.add_parameter('master_flavor',
-                           cluster_template_attr='master_flavor_id')
-        self.add_parameter('slave_flavor',
+        self.add_parameter('main_flavor',
+                           cluster_template_attr='main_flavor_id')
+        self.add_parameter('subordinate_flavor',
                            cluster_template_attr='flavor_id')
         self.add_parameter('cluster_name',
                            cluster_attr='name')
@@ -67,16 +67,16 @@ class DcosCentosTemplateDefinition(template_def.BaseTemplateDefinition):
 
         self.add_output('api_address',
                         cluster_attr='api_address')
-        self.add_output('dcos_master_private',
+        self.add_output('dcos_main_private',
                         cluster_attr=None)
-        self.add_output('dcos_slaves_private',
+        self.add_output('dcos_subordinates_private',
                         cluster_attr=None)
-        self.add_output('dcos_slaves',
+        self.add_output('dcos_subordinates',
                         cluster_attr='node_addresses',
                         mapping_type=NodeAddressOutputMapping)
-        self.add_output('dcos_master',
-                        cluster_attr='master_addresses',
-                        mapping_type=MasterAddressOutputMapping)
+        self.add_output('dcos_main',
+                        cluster_attr='main_addresses',
+                        mapping_type=MainAddressOutputMapping)
 
     def get_params(self, context, cluster_template, cluster, **kwargs):
         extra_params = kwargs.pop('extra_params', {})
@@ -121,11 +121,11 @@ class DcosCentosTemplateDefinition(template_def.BaseTemplateDefinition):
         for label in label_list:
             extra_params[label] = cluster.labels.get(label)
 
-        # By default, master_discovery is set to 'static'
-        # If --master-lb-enabled is specified,
-        # master_discovery will be set to 'master_http_loadbalancer'
-        if cluster_template.master_lb_enabled:
-            extra_params['master_discovery'] = 'master_http_loadbalancer'
+        # By default, main_discovery is set to 'static'
+        # If --main-lb-enabled is specified,
+        # main_discovery will be set to 'main_http_loadbalancer'
+        if cluster_template.main_lb_enabled:
+            extra_params['main_discovery'] = 'main_http_loadbalancer'
 
         if 'true' == extra_params['dcos_overlay_enable']:
             overlay_obj = jsonutils.loads(extra_params['dcos_overlay_network'])
@@ -144,8 +144,8 @@ class DcosCentosTemplateDefinition(template_def.BaseTemplateDefinition):
 
         scale_mgr = kwargs.pop('scale_manager', None)
         if scale_mgr:
-            hosts = self.get_output('dcos_slaves_private')
-            extra_params['slaves_to_remove'] = (
+            hosts = self.get_output('dcos_subordinates_private')
+            extra_params['subordinates_to_remove'] = (
                 scale_mgr.get_removal_nodes(hosts))
 
         return super(DcosCentosTemplateDefinition,

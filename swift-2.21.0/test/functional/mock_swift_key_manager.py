@@ -27,9 +27,9 @@ class MockSwiftKeyManager(MockKeyManager):
     once the proxy server is restarted.
 
     To use this mock key manager instead of the default Barbican key manager,
-    set the following property in the [kms_keymaster] section in the
-    keymaster.conf configuration file pointed to using the
-    keymaster_config_path property in the [filter:kms_keymaster] section in the
+    set the following property in the [kms_keymain] section in the
+    keymain.conf configuration file pointed to using the
+    keymain_config_path property in the [filter:kms_keymain] section in the
     proxy-server.conf file:
 
         api_class = test.functional.mock_swift_key_manager.MockSwiftKeyManager
@@ -51,7 +51,7 @@ class MockSwiftKeyManager(MockKeyManager):
         existing_key = self._generate_key(algorithm='AES', length=256)
         '''
         Store the key under the UUID 'mock_key_manager_existing_key', from
-        where it can be retrieved by the proxy server. In the kms_keymaster
+        where it can be retrieved by the proxy server. In the kms_keymain
         configuration, set the following property to use this key:
 
             key_id = mock_key_manager_existing_key

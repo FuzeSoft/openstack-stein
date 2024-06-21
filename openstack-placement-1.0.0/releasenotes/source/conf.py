@@ -41,8 +41,8 @@ extensions = [
     'reno.sphinxext',
 ]
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = u'Placement Release Notes'

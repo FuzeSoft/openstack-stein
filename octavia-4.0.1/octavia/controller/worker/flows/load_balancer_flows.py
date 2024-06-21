@@ -124,13 +124,13 @@ class LoadBalancerFlows(object):
 
         f_name = constants.CREATE_LOADBALANCER_FLOW
         amps_flow = unordered_flow.Flow(f_name)
-        master_amp_sf = self.amp_flows.get_amphora_for_lb_subflow(
+        main_amp_sf = self.amp_flows.get_amphora_for_lb_subflow(
             prefix=constants.ROLE_MASTER, role=constants.ROLE_MASTER
         )
 
         backup_amp_sf = self.amp_flows.get_amphora_for_lb_subflow(
             prefix=constants.ROLE_BACKUP, role=constants.ROLE_BACKUP)
-        amps_flow.add(master_amp_sf, backup_amp_sf)
+        amps_flow.add(main_amp_sf, backup_amp_sf)
 
         return flows + [amps_flow]
 

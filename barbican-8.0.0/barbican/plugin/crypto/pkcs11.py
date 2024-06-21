@@ -586,15 +586,15 @@ class PKCS11(object):
         )
 
     def generate_key(self, key_type, key_length, mechanism, session,
-                     key_label=None, master_key=False,
+                     key_label=None, main_key=False,
                      encrypt=False, sign=False, wrap=False):
         if not any((encrypt, sign, wrap)):
             raise exception.P11CryptoPluginException()
-        if master_key and not key_label:
-            raise ValueError(u._("key_label must be set for master_keys"))
+        if main_key and not key_label:
+            raise ValueError(u._("key_label must be set for main_keys"))
 
-        token = master_key
-        extractable = not master_key
+        token = main_key
+        extractable = not main_key
         # in some HSMs extractable keys cannot be marked sensitive
         sensitive = self.always_set_cka_sensitive or not extractable
 
@@ -613,7 +613,7 @@ class PKCS11(object):
             Attribute(CKA_UNWRAP, wrap),
             Attribute(CKA_EXTRACTABLE, extractable)
         ]
-        if master_key:
+        if main_key:
             ck_attributes.append(Attribute(CKA_LABEL, key_label))
         ck_attributes = self._build_attributes(ck_attributes)
         mech = self.ffi.new("CK_MECHANISM *")

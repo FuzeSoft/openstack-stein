@@ -31,7 +31,7 @@ class AtomicSwarmTemplateDefinition(sftd.SwarmModeTemplateDefinition):
     def get_params(self, context, cluster_template, cluster, **kwargs):
         ep = kwargs.pop('extra_params', {})
 
-        ep['number_of_secondary_masters'] = cluster.master_count - 1
+        ep['number_of_secondary_mains'] = cluster.main_count - 1
 
         return super(AtomicSwarmTemplateDefinition,
                      self).get_params(context, cluster_template, cluster,

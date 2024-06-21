@@ -106,8 +106,8 @@ class Cluster(base.APIBase):
     node_count = wsme.wsattr(wtypes.IntegerType(minimum=1), default=1)
     """The node count for this cluster. Default to 1 if not set"""
 
-    master_count = wsme.wsattr(wtypes.IntegerType(minimum=1), default=1)
-    """The number of master nodes for this cluster. Default to 1 if not set"""
+    main_count = wsme.wsattr(wtypes.IntegerType(minimum=1), default=1)
+    """The number of main nodes for this cluster. Default to 1 if not set"""
 
     docker_volume_size = wtypes.IntegerType(minimum=1)
     """The size in GB of the docker volume"""
@@ -118,8 +118,8 @@ class Cluster(base.APIBase):
                                                           float))
     """One or more key/value pairs"""
 
-    master_flavor_id = wtypes.StringType(min_length=1, max_length=255)
-    """The flavor of the master node for this Cluster"""
+    main_flavor_id = wtypes.StringType(min_length=1, max_length=255)
+    """The flavor of the main node for this Cluster"""
 
     flavor_id = wtypes.StringType(min_length=1, max_length=255)
     """The flavor of this Cluster"""
@@ -149,7 +149,7 @@ class Cluster(base.APIBase):
     """Url used for cluster node discovery"""
 
     api_address = wsme.wsattr(wtypes.text, readonly=True)
-    """Api address of cluster master node"""
+    """Api address of cluster main node"""
 
     coe_version = wsme.wsattr(wtypes.text, readonly=True)
     """Version of the COE software currently running in this cluster.
@@ -165,10 +165,10 @@ class Cluster(base.APIBase):
     """User id of the cluster belongs to"""
 
     node_addresses = wsme.wsattr([wtypes.text], readonly=True)
-    """IP addresses of cluster slave nodes"""
+    """IP addresses of cluster subordinate nodes"""
 
-    master_addresses = wsme.wsattr([wtypes.text], readonly=True)
-    """IP addresses of cluster master nodes"""
+    main_addresses = wsme.wsattr([wtypes.text], readonly=True)
+    """IP addresses of cluster main nodes"""
 
     faults = wsme.wsattr(wtypes.DictType(wtypes.text, wtypes.text))
     """Fault info collected from the heat resources of this cluster"""
@@ -189,8 +189,8 @@ class Cluster(base.APIBase):
             cluster.unset_fields_except(['uuid', 'name', 'cluster_template_id',
                                          'keypair', 'docker_volume_size',
                                          'labels', 'node_count', 'status',
-                                         'master_flavor_id', 'flavor_id',
-                                         'create_timeout', 'master_count',
+                                         'main_flavor_id', 'flavor_id',
+                                         'create_timeout', 'main_count',
                                          'stack_id', 'health_status'])
 
         cluster.links = [link.Link.make_link('self', url,
@@ -213,10 +213,10 @@ class Cluster(base.APIBase):
                      cluster_template_id=temp_id,
                      keypair=None,
                      node_count=2,
-                     master_count=1,
+                     main_count=1,
                      docker_volume_size=1,
                      labels={},
-                     master_flavor_id='m1.small',
+                     main_flavor_id='m1.small',
                      flavor_id='m1.small',
                      create_timeout=15,
                      stack_id='49dc23f5-ffc9-40c3-9d34-7be7f9e34d63',
@@ -240,7 +240,7 @@ class ClusterPatchType(types.JsonPatchType):
     @staticmethod
     def internal_attrs():
         internal_attrs = ['/api_address', '/node_addresses',
-                          '/master_addresses', '/stack_id',
+                          '/main_addresses', '/stack_id',
                           '/ca_cert_ref', '/magnum_cert_ref',
                           '/trust_id', '/trustee_user_name',
                           '/trustee_password', '/trustee_user_id']
@@ -472,10 +472,10 @@ class ClustersController(base.Controller):
         if cluster.labels == wtypes.Unset:
             cluster.labels = cluster_template.labels
 
-        # If master_flavor_id is not present, use cluster_template value
-        if (cluster.master_flavor_id == wtypes.Unset or
-                not cluster.master_flavor_id):
-            cluster.master_flavor_id = cluster_template.master_flavor_id
+        # If main_flavor_id is not present, use cluster_template value
+        if (cluster.main_flavor_id == wtypes.Unset or
+                not cluster.main_flavor_id):
+            cluster.main_flavor_id = cluster_template.main_flavor_id
 
         # If flavor_id is not present, use cluster_template value
         if cluster.flavor_id == wtypes.Unset or not cluster.flavor_id:
@@ -486,7 +486,7 @@ class ClustersController(base.Controller):
         attr_validator.validate_os_resources(context,
                                              cluster_template.as_dict(),
                                              cluster_dict)
-        attr_validator.validate_master_count(cluster_dict,
+        attr_validator.validate_main_count(cluster_dict,
                                              cluster_template.as_dict())
 
         cluster_dict['project_id'] = context.project_id

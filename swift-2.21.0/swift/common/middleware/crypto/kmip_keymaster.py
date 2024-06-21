@@ -16,7 +16,7 @@
 import logging
 import os
 
-from swift.common.middleware.crypto import keymaster
+from swift.common.middleware.crypto import keymain
 from swift.common.utils import LogLevelFilter
 
 from kmip.pie.client import ProxyKmipClient
@@ -28,16 +28,16 @@ and is referenced by its unique identifier. The secret should be an AES-256
 symmetric key.
 
 To use this middleware, edit the swift proxy-server.conf to insert the
-middleware in the wsgi pipeline, replacing any other keymaster middleware::
+middleware in the wsgi pipeline, replacing any other keymain middleware::
 
     [pipeline:main]
     pipeline = catch_errors gatekeeper healthcheck proxy-logging \
-        <other middleware> kmip_keymaster encryption proxy-logging proxy-server
+        <other middleware> kmip_keymain encryption proxy-logging proxy-server
 
 and add a new filter section::
 
-    [filter:kmip_keymaster]
-    use = egg:swift#kmip_keymaster
+    [filter:kmip_keymain]
+    use = egg:swift#kmip_keymain
     key_id = <unique id of secret to be fetched from the KMIP service>
     key_id_<secret_id> = <unique id of additional secret to be fetched>
     active_root_secret_id = <secret_id to be used for new encryptions>
@@ -71,19 +71,19 @@ the ``key_id`` secret will be used.
     process ensures that all proxies will have the new key available for
     *decryption* before any proxy uses it for *encryption*.
 
-The keymaster configuration can alternatively be defined in a separate config
-file by using the ``keymaster_config_path`` option::
+The keymain configuration can alternatively be defined in a separate config
+file by using the ``keymain_config_path`` option::
 
-    [filter:kmip_keymaster]
-    use = egg:swift#kmip_keymaster
-    keymaster_config_path=/etc/swift/kmip_keymaster.conf
+    [filter:kmip_keymain]
+    use = egg:swift#kmip_keymain
+    keymain_config_path=/etc/swift/kmip_keymain.conf
 
-In this case, the ``filter:kmip_keymaster`` section should contain no other
-options than ``use`` and ``keymaster_config_path``. All other options should be
-defined in the separate config file in a section named ``kmip_keymaster``. For
+In this case, the ``filter:kmip_keymain`` section should contain no other
+options than ``use`` and ``keymain_config_path``. All other options should be
+defined in the separate config file in a section named ``kmip_keymain``. For
 example::
 
-    [kmip_keymaster]
+    [kmip_keymain]
     key_id = 1234567890
     key_id_foo = 2468024680
     key_id_bar = 1357913579
@@ -98,17 +98,17 @@ example::
 """
 
 
-class KmipKeyMaster(keymaster.BaseKeyMaster):
-    log_route = 'kmip_keymaster'
-    keymaster_opts = ('host', 'port', 'certfile', 'keyfile',
+class KmipKeyMain(keymain.BaseKeyMain):
+    log_route = 'kmip_keymain'
+    keymain_opts = ('host', 'port', 'certfile', 'keyfile',
                       'ca_certs', 'username', 'password',
                       'active_root_secret_id', 'key_id*')
-    keymaster_conf_section = 'kmip_keymaster'
+    keymain_conf_section = 'kmip_keymain'
 
-    def _load_keymaster_config_file(self, conf):
-        conf = super(KmipKeyMaster, self)._load_keymaster_config_file(conf)
-        if self.keymaster_config_path:
-            section = self.keymaster_conf_section
+    def _load_keymain_config_file(self, conf):
+        conf = super(KmipKeyMain, self)._load_keymain_config_file(conf)
+        if self.keymain_config_path:
+            section = self.keymain_conf_section
         else:
             # __name__ is just the filter name, not the whole section name.
             # Luckily, PasteDeploy only uses the one prefix for filters.
@@ -116,8 +116,8 @@ class KmipKeyMaster(keymaster.BaseKeyMaster):
 
         if os.path.isdir(conf['__file__']):
             raise ValueError(
-                'KmipKeyMaster config cannot be read from conf dir %s. Use '
-                'keymaster_config_path option in the proxy server config to '
+                'KmipKeyMain config cannot be read from conf dir %s. Use '
+                'keymain_config_path option in the proxy server config to '
                 'specify a config file.')
 
         # Make sure we've got the kmip log handler set up before
@@ -172,7 +172,7 @@ def filter_factory(global_conf, **local_conf):
     conf = global_conf.copy()
     conf.update(local_conf)
 
-    def keymaster_filter(app):
-        return KmipKeyMaster(app, conf)
+    def keymain_filter(app):
+        return KmipKeyMain(app, conf)
 
-    return keymaster_filter
+    return keymain_filter

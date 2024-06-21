@@ -427,10 +427,10 @@ class RedisApp(object):
         redis_password = RedisRootUser(password=password)
         try:
             self.configuration_manager.apply_system_override(
-                {'requirepass': password, 'masterauth': password},
+                {'requirepass': password, 'mainauth': password},
                 change_id=SYS_OVERRIDES_AUTH)
             self.apply_overrides(
-                self.admin, {'requirepass': password, 'masterauth': password})
+                self.admin, {'requirepass': password, 'mainauth': password})
         except exception.TroveError:
             LOG.exception('Error enabling authentication for instance.')
             raise
@@ -441,7 +441,7 @@ class RedisApp(object):
             self.configuration_manager.remove_system_override(
                 change_id=SYS_OVERRIDES_AUTH)
             self.apply_overrides(self.admin,
-                                 {'requirepass': '', 'masterauth': ''})
+                                 {'requirepass': '', 'mainauth': ''})
         except exception.TroveError:
             LOG.exception('Error disabling authentication for instance.')
             raise
@@ -506,8 +506,8 @@ class RedisAdmin(object):
                                                 "Redis data (%s)") % save_cmd)
         LOG.debug("Redis data persist (%s) completed", save_cmd)
 
-    def set_master(self, host=None, port=None):
-        self.__client.slaveof(host, port)
+    def set_main(self, host=None, port=None):
+        self.__client.subordinateof(host, port)
 
     def config_set(self, name, value):
         response = self.execute(

@@ -479,7 +479,7 @@ class TestClusterCreateFlavorValidation(base.SaharaWithDbTestCase):
             "plugin_name": "fake",
             "hadoop_version": "0.1",
             "node_processes": ["namenode"],
-            "name": "master",
+            "name": "main",
             "flavor_id": flavor
         }
         return api.create_node_group_template(ng_tmpl).id
@@ -489,7 +489,7 @@ class TestClusterCreateFlavorValidation(base.SaharaWithDbTestCase):
             "plugin_name": "fake",
             "hadoop_version": "0.1",
             "node_groups": [
-                {"name": "master",
+                {"name": "main",
                  "count": 1,
                  "node_group_template_id": "%s" % ng_id}
             ],

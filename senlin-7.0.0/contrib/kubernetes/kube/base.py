@@ -67,12 +67,12 @@ class KubeBaseProfile(server.ServerProfile):
             return cluster.data.get(self.KUBEADM_TOKEN)
         return None
 
-    def _update_master_ip(self, obj, ip):
+    def _update_main_ip(self, obj, ip):
         ctx = context.get_service_context(user_id=obj.user,
                                           project_id=obj.project)
         if obj.cluster_id:
             cluster = cluster_obj.Cluster.get(ctx, obj.cluster_id)
-            cluster.data['kube_master_ip'] = ip
+            cluster.data['kube_main_ip'] = ip
             cluster.update(ctx, obj.cluster_id, {'data': cluster.data})
 
     def _create_network(self, obj):

@@ -24,7 +24,7 @@ sys.modules['castellan.common.credentials'] = mock.Mock()
 from keystoneauth1.exceptions.connection import ConnectFailure
 from keystoneauth1.exceptions.http import Unauthorized
 from keystoneclient.exceptions import DiscoveryFailure
-from swift.common.middleware.crypto import kms_keymaster
+from swift.common.middleware.crypto import kms_keymain
 from swift.common.swob import Request
 from test.unit.common.middleware.helpers import FakeSwift, FakeAppThatExcepts
 
@@ -39,7 +39,7 @@ TEST_KMS_INVALID_USER_DOMAIN_NAME = "baduserdomainname"
 TEST_KMS_CONNECT_FAILURE_URL = 'http://endpoint_url_connect_error:45621'
 TEST_KMS_NON_BARBICAN_URL = 'http://endpoint_url_nonbarbican:45621'
 TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF = {
-    'keymaster_config_path': 'PATH_TO_KEYMASTER_CONFIG_FILE',
+    'keymain_config_path': 'PATH_TO_KEYMASTER_CONFIG_FILE',
 }
 TEST_KMS_KEYMASTER_CONF = {
     'auth_endpoint': 'kmsauthurlv3',
@@ -176,47 +176,47 @@ class MockPassword(object):
         self.reauthenticate = reauthenticate
 
 
-class TestKmsKeymaster(unittest.TestCase):
+class TestKmsKeymain(unittest.TestCase):
     """
     Unit tests for storing the encryption root secret in a Barbican external
     key management system accessed using Castellan.
     """
 
     def setUp(self):
-        super(TestKmsKeymaster, self).setUp()
+        super(TestKmsKeymain, self).setUp()
         self.swift = FakeSwift()
 
     """
     Tests using the v3 Identity API, where all calls to Barbican are mocked.
     """
 
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch.object(kms_keymaster.KmsKeyMaster,
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch.object(kms_keymain.KmsKeyMain,
                        '_get_root_secret')
     def test_filter_v3(self, mock_get_root_secret_from_kms,
                        mock_readconf):
         mock_get_root_secret_from_kms.return_value = (
             base64.b64encode(b'x' * 32))
         mock_readconf.return_value = TEST_KMS_KEYMASTER_CONF
-        factory = kms_keymaster.filter_factory(TEST_KMS_KEYMASTER_CONF)
+        factory = kms_keymain.filter_factory(TEST_KMS_KEYMASTER_CONF)
         self.assertTrue(callable(factory))
         self.assertTrue(callable(factory(self.swift)))
 
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch.object(kms_keymaster.KmsKeyMaster,
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch.object(kms_keymain.KmsKeyMain,
                        '_get_root_secret')
     def test_app_exception_v3(self, mock_get_root_secret_from_kms,
                               mock_readconf):
         mock_get_root_secret_from_kms.return_value = (
             base64.b64encode(b'x' * 32))
         mock_readconf.return_value = TEST_KMS_KEYMASTER_CONF
-        app = kms_keymaster.KmsKeyMaster(
+        app = kms_keymain.KmsKeyMain(
             FakeAppThatExcepts(), TEST_KMS_KEYMASTER_CONF)
         req = Request.blank('/', environ={'REQUEST_METHOD': 'PUT'})
         start_response, _ = capture_start_response()
         self.assertRaises(Exception, app, req.environ, start_response)
 
-    @mock.patch.object(kms_keymaster.KmsKeyMaster, '_get_root_secret')
+    @mock.patch.object(kms_keymain.KmsKeyMain, '_get_root_secret')
     def test_get_root_secret(
             self, mock_get_root_secret_from_kms):
         # Successful call with coarse _get_root_secret_from_kms() mock.
@@ -224,7 +224,7 @@ class TestKmsKeymaster(unittest.TestCase):
             base64.b64encode(b'x' * 32))
         # Provide valid Barbican configuration parameters in proxy-server
         # config.
-        self.app = kms_keymaster.KmsKeyMaster(self.swift,
+        self.app = kms_keymain.KmsKeyMain(self.swift,
                                               TEST_KMS_KEYMASTER_CONF)
         # Verify that _get_root_secret_from_kms() was called with the
         # correct parameters.
@@ -232,8 +232,8 @@ class TestKmsKeymaster(unittest.TestCase):
             TEST_KMS_KEYMASTER_CONF
         )
 
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch.object(kms_keymaster.KmsKeyMaster, '_get_root_secret')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch.object(kms_keymain.KmsKeyMain, '_get_root_secret')
     def test_get_root_secret_from_external_file(
             self, mock_get_root_secret_from_kms, mock_readconf):
         # Return valid Barbican configuration parameters.
@@ -242,7 +242,7 @@ class TestKmsKeymaster(unittest.TestCase):
         mock_get_root_secret_from_kms.return_value = (
             base64.b64encode(b'x' * 32))
         # Point to external config in proxy-server config.
-        self.app = kms_keymaster.KmsKeyMaster(
+        self.app = kms_keymain.KmsKeyMain(
             self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
         # Verify that _get_root_secret_from_kms() was called with the
         # correct parameters.
@@ -250,14 +250,14 @@ class TestKmsKeymaster(unittest.TestCase):
             TEST_KMS_KEYMASTER_CONF
         )
         self.assertEqual(mock_readconf.mock_calls, [
-            mock.call('PATH_TO_KEYMASTER_CONFIG_FILE', 'kms_keymaster')])
+            mock.call('PATH_TO_KEYMASTER_CONFIG_FILE', 'kms_keymain')])
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config, mock_keystone_password):
@@ -282,18 +282,18 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that no exceptions are raised by the mocked functions.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(self.swift,
+            self.app = kms_keymain.KmsKeyMain(self.swift,
                                                   TEST_KMS_KEYMASTER_CONF)
         except Exception:
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_invalid_key_id(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -321,7 +321,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though key id invalid')
         except ValueError as e:
@@ -331,12 +331,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_nonexistent_key_id(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -364,7 +364,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though key id invalid')
         except Exception as e:
@@ -372,12 +372,12 @@ class TestKmsKeymaster(unittest.TestCase):
                                 TEST_KMS_NONEXISTENT_KEY_ID)
             self.assertEqual(e.args[0], expected_message)
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_invalid_key_format(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -405,7 +405,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though key format invalid')
         except ValueError:
@@ -414,12 +414,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_config_file_and_params(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -440,7 +440,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Return invalid Barbican configuration parameters.
         '''
         kms_conf = dict(TEST_KMS_KEYMASTER_CONF)
-        kms_conf['keymaster_config_path'] = (
+        kms_conf['keymain_config_path'] = (
             'PATH_TO_KEYMASTER_CONFIG_FILE'
         )
         mock_readconf.return_value = kms_conf
@@ -449,21 +449,21 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(self.swift, kms_conf)
+            self.app = kms_keymain.KmsKeyMain(self.swift, kms_conf)
             raise Exception('Success even though config invalid')
         except Exception as e:
-            expected_message = ('keymaster_config_path is set, but there are '
+            expected_message = ('keymain_config_path is set, but there are '
                                 'other config options specified:')
             self.assertTrue(e.args[0].startswith(expected_message),
                             "Error message does not start with '%s'" %
                             expected_message)
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_invalid_username(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -491,7 +491,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though username invalid')
         except Unauthorized as e:
@@ -500,12 +500,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_invalid_password(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -533,7 +533,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though password invalid')
         except Unauthorized as e:
@@ -542,12 +542,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_connect_failure_auth_url(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config, mock_keystone_password):
@@ -574,7 +574,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though auth_url invalid')
         except ConnectFailure:
@@ -583,12 +583,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_bad_auth_url(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -616,7 +616,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though auth_url invalid')
         except DiscoveryFailure:
@@ -625,12 +625,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_bad_user_domain_name(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config, mock_keystone_password):
@@ -658,7 +658,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though api_version invalid')
         except Unauthorized as e:
@@ -667,12 +667,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_invalid_key_algorithm(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -700,7 +700,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though key format invalid')
         except ValueError:
@@ -709,12 +709,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_invalid_key_length(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -742,7 +742,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though key format invalid')
         except ValueError:
@@ -751,12 +751,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_mocked_castellan_keymanager_none_key(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,
@@ -784,7 +784,7 @@ class TestKmsKeymaster(unittest.TestCase):
         Verify that an exception is raised by the mocked function.
         '''
         try:
-            self.app = kms_keymaster.KmsKeyMaster(
+            self.app = kms_keymain.KmsKeyMain(
                 self.swift, TEST_PROXYSERVER_CONF_EXTERNAL_KEYMASTER_CONF)
             raise Exception('Success even though None key returned')
         except ValueError:
@@ -793,12 +793,12 @@ class TestKmsKeymaster(unittest.TestCase):
             print("Unexpected error: %s" % sys.exc_info()[0])
             raise
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword', MockPassword)
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_get_root_secret_multiple_keys(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config,):
@@ -819,7 +819,7 @@ class TestKmsKeymaster(unittest.TestCase):
         # Return valid Barbican configuration parameters.
         mock_readconf.return_value = config
 
-        self.app = kms_keymaster.KmsKeyMaster(self.swift,
+        self.app = kms_keymain.KmsKeyMain(self.swift,
                                               config)
 
         expected_secrets = {
@@ -829,12 +829,12 @@ class TestKmsKeymaster(unittest.TestCase):
         self.assertDictEqual(self.app._root_secrets, expected_secrets)
         self.assertEqual(self.app.active_secret_id, 'foo')
 
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.'
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.'
                 'keystone_password.KeystonePassword', MockPassword)
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.cfg')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.options')
-    @mock.patch('swift.common.middleware.crypto.keymaster.readconf')
-    @mock.patch('swift.common.middleware.crypto.kms_keymaster.key_manager')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.cfg')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.options')
+    @mock.patch('swift.common.middleware.crypto.keymain.readconf')
+    @mock.patch('swift.common.middleware.crypto.kms_keymain.key_manager')
     def test_get_root_secret_legacy_key_id(
             self, mock_castellan_key_manager, mock_readconf,
             mock_castellan_options, mock_oslo_config):
@@ -850,7 +850,7 @@ class TestKmsKeymaster(unittest.TestCase):
         # Return valid Barbican configuration parameters.
         mock_readconf.return_value = TEST_KMS_KEYMASTER_CONF
 
-        self.app = kms_keymaster.KmsKeyMaster(self.swift,
+        self.app = kms_keymain.KmsKeyMain(self.swift,
                                               TEST_KMS_KEYMASTER_CONF)
 
         expected_secrets = {None: b'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'}

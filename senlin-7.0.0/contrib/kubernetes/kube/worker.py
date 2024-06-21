@@ -46,14 +46,14 @@ class ServerProfile(base.KubeBaseProfile):
     KUBE_KEYS = (
         MASTER_CLUSTER,
     ) = (
-        'master_cluster',
+        'main_cluster',
     )
 
     MASTER_CLUSTER_KEYS = (
         KUBEADM_TOKEN, KUBE_MASTER_IP,
         PRIVATE_NETWORK, PRIVATE_SUBNET, PRIVATE_ROUTER,
     ) = (
-        'kubeadm_token', 'kube_master_ip',
+        'kubeadm_token', 'kube_main_ip',
         'private_network', 'private_subnet', 'private_router',
     )
 
@@ -101,7 +101,7 @@ class ServerProfile(base.KubeBaseProfile):
             _('Name of Nova keypair to be injected to server.'),
         ),
         MASTER_CLUSTER: schema.String(
-            _('Cluster running kubernetes master.'),
+            _('Cluster running kubernetes main.'),
             required=True,
         ),
         BLOCK_DEVICE_MAPPING_V2: schema.List(
@@ -158,12 +158,12 @@ class ServerProfile(base.KubeBaseProfile):
         super(ServerProfile, self).__init__(type_name, name, **kwargs)
         self.server_id = None
 
-    def _get_master_cluster_info(self, obj):
+    def _get_main_cluster_info(self, obj):
         ctx = context.get_service_context(user_id=obj.user,
                                           project_id=obj.project)
-        master = self.properties[self.MASTER_CLUSTER]
+        main = self.properties[self.MASTER_CLUSTER]
         try:
-            cluster = cluster_obj.Cluster.find(ctx, master)
+            cluster = cluster_obj.Cluster.find(ctx, main)
         except Exception as ex:
             raise exc.EResourceCreation(type='kubernetes.worker',
                                         message=six.text_type(ex))
@@ -171,44 +171,44 @@ class ServerProfile(base.KubeBaseProfile):
             if key not in cluster.data:
                 raise exc.EResourceCreation(
                     type='kubernetes.worker',
-                    message="Can't find %s in cluster %s" % (key, master))
+                    message="Can't find %s in cluster %s" % (key, main))
 
         return cluster.data
 
     def _set_cluster_dependents(self, obj):
         ctx = context.get_service_context(user_id=obj.user,
                                           project_id=obj.project)
-        master = self.properties[self.MASTER_CLUSTER]
+        main = self.properties[self.MASTER_CLUSTER]
         try:
-            master_cluster = cluster_obj.Cluster.find(ctx, master)
+            main_cluster = cluster_obj.Cluster.find(ctx, main)
         except exc.ResourceNotFound:
-            msg = _("Cannot find the given cluster: %s") % master
+            msg = _("Cannot find the given cluster: %s") % main
             raise exc.BadRequest(msg=msg)
-        if master_cluster:
-            # configure kube master dependents, kube master record kube node
+        if main_cluster:
+            # configure kube main dependents, kube main record kube node
             # cluster uuid
-            master_dependents = master_cluster.dependents
-            master_dependents['kube-node'] = obj.id
-            cluster_obj.Cluster.update(ctx, master_cluster.id,
-                                       {'dependents': master_dependents})
+            main_dependents = main_cluster.dependents
+            main_dependents['kube-node'] = obj.id
+            cluster_obj.Cluster.update(ctx, main_cluster.id,
+                                       {'dependents': main_dependents})
 
     def _del_cluster_dependents(self, obj):
         ctx = context.get_service_context(user_id=obj.user,
                                           project_id=obj.project)
-        master = self.properties[self.MASTER_CLUSTER]
+        main = self.properties[self.MASTER_CLUSTER]
         try:
-            master_cluster = cluster_obj.Cluster.find(ctx, master)
+            main_cluster = cluster_obj.Cluster.find(ctx, main)
         except exc.ResourceNotFound:
-            msg = _("Cannot find the given cluster: %s") % master
+            msg = _("Cannot find the given cluster: %s") % main
             raise exc.BadRequest(msg=msg)
 
-        if master_cluster:
-            # remove kube master record kube node dependents
-            master_dependents = master_cluster.dependents
-            if master_dependents and 'kube-node' in master_dependents:
-                master_dependents.pop('kube-node')
-                cluster_obj.Cluster.update(ctx, master_cluster.id,
-                                           {'dependents': master_dependents})
+        if main_cluster:
+            # remove kube main record kube node dependents
+            main_dependents = main_cluster.dependents
+            if main_dependents and 'kube-node' in main_dependents:
+                main_dependents.pop('kube-node')
+                cluster_obj.Cluster.update(ctx, main_cluster.id,
+                                           {'dependents': main_dependents})
 
     def _get_cluster_data(self, obj):
         ctx = context.get_service_context(user_id=obj.user,
@@ -283,10 +283,10 @@ class ServerProfile(base.KubeBaseProfile):
         kwargs['security_groups'] = [{'name': sgid}]
 
         jj_vars = {}
-        master_cluster = self._get_master_cluster_info(obj)
-        kwargs['networks'] = [{'uuid': master_cluster[self.PRIVATE_NETWORK]}]
-        jj_vars['KUBETOKEN'] = master_cluster[self.KUBEADM_TOKEN]
-        jj_vars['MASTERIP'] = master_cluster[self.KUBE_MASTER_IP]
+        main_cluster = self._get_main_cluster_info(obj)
+        kwargs['networks'] = [{'uuid': main_cluster[self.PRIVATE_NETWORK]}]
+        jj_vars['KUBETOKEN'] = main_cluster[self.KUBEADM_TOKEN]
+        jj_vars['MASTERIP'] = main_cluster[self.KUBE_MASTER_IP]
 
         block_device_mapping_v2 = self.properties[self.BLOCK_DEVICE_MAPPING_V2]
         if block_device_mapping_v2 is not None:
